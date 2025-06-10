@@ -1,0 +1,35 @@
+{
+  "name": "@vidgen/worker",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "dev": "infisical run -- pnpm tsx src/app.ts",
+    "start": "node dist/app.js",
+    "format": "prettier --check . --ignore-path ../../.gitignore",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "devDependencies": {
+    "@vidgen/eslint-config": "workspace:*",
+    "@vidgen/typescript-config": "workspace:*",
+    "eslint": "^9.28.0",
+    "tsx": "^4.7.1",
+    "typescript": "5.8.2"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "2.0.0-alpha.11",
+    "@ai-sdk/elevenlabs": "1.0.0-alpha.11",
+    "@elevenlabs/client": "^0.1.7",
+    "@vercel/ai-sdk-gateway": "^0.1.10",
+    "ai": "5.0.0-alpha.11",
+    "bullmq": "^5.53.0",
+    "zod": "^3.25.57"
+  }
+}
