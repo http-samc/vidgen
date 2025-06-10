@@ -1,6 +1,9 @@
 import { Readable } from "stream";
-import { ScriptLine, ScriptLineSchema } from "./generate-script.js";
-import elevenLabs from "../lib/elevenlabs.js";
+import { ScriptLine, ScriptLineSchema } from "./generate-script";
+import elevenLabs from "../lib/elevenlabs";
+import { join } from "path";
+import { createWriteStream } from "fs";
+import { pipeline } from "stream/promises";
 
 // Define the voice IDs for each character
 const VOICE_IDS = {
@@ -10,8 +13,10 @@ const VOICE_IDS = {
 } as const;
 
 export async function generateSpeech(
-  scriptLine: ScriptLine
-): Promise<Readable> {
+  scriptLine: ScriptLine,
+  outputPath: string
+): Promise<string> {
+  console.log("Generating speech for", scriptLine);
   // Validate the script line
   const validatedLine = ScriptLineSchema.parse(scriptLine);
 
@@ -29,16 +34,38 @@ export async function generateSpeech(
     languageCode: "en",
   });
 
-  return audio;
+  // Save the audio stream to a file
+  const writeStream = createWriteStream(outputPath);
+  await pipeline(audio, writeStream);
+
+  console.log("Generated speech for", scriptLine);
+  return outputPath;
 }
 
 export async function generateSpeechForScript(
-  script: ScriptLine[]
-): Promise<Readable[]> {
-  // Generate speech for each line in parallel
-  const audioStreams = await Promise.all(
-    script.map((line) => generateSpeech(line))
-  );
+  script: ScriptLine[],
+  id: string
+): Promise<string[]> {
+  // const tempDir = join(process.cwd(), "temp", id);
 
-  return audioStreams;
+  // // Generate speech for each line in parallel
+  // const audioPaths = await Promise.all(
+  //   script.map((line, index) => {
+  //     const outputPath = join(tempDir, `${index}_${line.speaker}.mp3`);
+  //     return generateSpeech(line, outputPath);
+  //   })
+  // );
+
+  const audioPaths = [
+    "/Users/smrth/dev/vidgen/apps/worker/temp/test/0_Peter Griffin.mp3",
+    "/Users/smrth/dev/vidgen/apps/worker/temp/test/1_Stewie Griffin.mp3",
+    "/Users/smrth/dev/vidgen/apps/worker/temp/test/2_Peter Griffin.mp3",
+    "/Users/smrth/dev/vidgen/apps/worker/temp/test/3_Stewie Griffin.mp3",
+    "/Users/smrth/dev/vidgen/apps/worker/temp/test/4_Peter Griffin.mp3",
+    "/Users/smrth/dev/vidgen/apps/worker/temp/test/5_Stewie Griffin.mp3",
+    "/Users/smrth/dev/vidgen/apps/worker/temp/test/6_Peter Griffin.mp3",
+    "/Users/smrth/dev/vidgen/apps/worker/temp/test/7_Stewie Griffin.mp3",
+  ];
+
+  return audioPaths;
 }

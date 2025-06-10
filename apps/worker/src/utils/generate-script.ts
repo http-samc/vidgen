@@ -1,9 +1,13 @@
 // import { generateObject } from "ai";
 // import { anthropic } from "@ai-sdk/anthropic";
 import { z } from "zod/v4";
+import { writeFile } from "fs/promises";
+import { join } from "path";
+import { mkdir } from "fs/promises";
 
 export interface GenerateScriptData {
   prompt: string;
+  id: string;
 }
 
 // Define the script line schema
@@ -17,6 +21,10 @@ export type ScriptLine = z.infer<typeof ScriptLineSchema>;
 export async function generateScript(
   data: GenerateScriptData
 ): Promise<ScriptLine[]> {
+  // Create temp directory if it doesn't exist
+  const tempDir = join(process.cwd(), "temp", data.id);
+  await mkdir(tempDir, { recursive: true });
+
   //   const { object: script } = await generateObject({
   //     model: anthropic("claude-3-5-haiku-20241022"),
   //     schema: z.object({
@@ -75,6 +83,12 @@ export async function generateScript(
       },
     ],
   };
+
+  // Save script to JSON file
+  await writeFile(
+    join(tempDir, "script.json"),
+    JSON.stringify(script.lines, null, 2)
+  );
 
   return script.lines;
 }
