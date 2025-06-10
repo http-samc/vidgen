@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   AbsoluteFill,
   Audio,
   Sequence,
   staticFile,
-  useCurrentFrame,
+  Video as RemotionVideo,
 } from "remotion";
 import { getAudioData } from "@remotion/media-utils";
 
@@ -30,18 +30,22 @@ const Subtitle: React.FC<{ text: string }> = ({ text }) => {
         bottom: "10%",
         left: "50%",
         transform: "translateX(-50%)",
-        color: "white",
-        fontSize: "48px",
-        fontFamily: "Arial",
-        textAlign: "center",
-        textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
+        backgroundColor: "rgba(0, 0, 0, 0.7)",
+        padding: "10px 20px",
+        borderRadius: "5px",
         maxWidth: "80%",
-        padding: "20px",
-        backgroundColor: "rgba(0,0,0,0.5)",
-        borderRadius: "10px",
+        textAlign: "center",
       }}
     >
-      {text}
+      <span
+        style={{
+          color: "white",
+          fontSize: "2em",
+          textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+        }}
+      >
+        {text}
+      </span>
     </div>
   );
 };
@@ -51,28 +55,18 @@ export const Video: React.FC<VideoProps> = ({
   delay,
   transcript,
 }) => {
-  const [startTimes, setStartTimes] = React.useState<number[]>([]);
-  const currentFrame = useCurrentFrame();
-  const currentTime = currentFrame / 30; // Convert frames to seconds
+  const [startTimes, setStartTimes] = useState<number[]>([]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const calculateStartTimes = async () => {
-      // Get durations for all audio files
       const durations = await Promise.all(
-        audioPaths.map(async (audioPath) => {
-          const audioData = await getAudioData(staticFile(audioPath));
-          return audioData.durationInSeconds;
-        })
+        audioPaths.map((path) => getAudioData(staticFile(path)))
       );
 
-      // Calculate start times based on cumulative durations and delays
       const times = durations.reduce<number[]>((acc, duration, index) => {
-        const previousStart = index === 0 ? 0 : (acc[index - 1] ?? 0);
-        const previousDuration = index === 0 ? 0 : (durations[index - 1] ?? 0);
-        return [
-          ...acc,
-          previousStart + previousDuration + (index === 0 ? 0 : delay),
-        ];
+        const previousStart = acc[index - 1] ?? 0;
+        const previousDuration = durations[index - 1]?.durationInSeconds ?? 0;
+        return [...acc, previousStart + previousDuration + delay];
       }, []);
 
       setStartTimes(times);
@@ -81,22 +75,54 @@ export const Video: React.FC<VideoProps> = ({
     calculateStartTimes();
   }, [audioPaths, delay]);
 
-  // Find the current word based on timing
-  const currentWord = transcript?.words.find(
-    (word) => currentTime >= word.start - 0.2 && currentTime <= word.end + 0.2
-  );
+  // Calculate total duration for the background video
+  const lastStartTime = startTimes[startTimes.length - 1];
+  const totalDuration =
+    startTimes.length > 0 && lastStartTime !== undefined
+      ? lastStartTime + (audioPaths.length > 0 ? 30 * 5 : 0) // Add 5 seconds buffer
+      : 0;
+
+  const startFrom = 30 * 30; // 30 seconds in frames
+  const endAt = startFrom + totalDuration * 30; // Convert totalDuration to frames and add to startFrom
 
   return (
-    <AbsoluteFill style={{ backgroundColor: "black" }}>
+    <AbsoluteFill>
+      {/* Background Video */}
+      <RemotionVideo
+        src={staticFile("gameplay.mp4")}
+        startFrom={startFrom}
+        endAt={endAt}
+        muted={true}
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+        }}
+      />
+
+      {/* Audio Sequences */}
       {audioPaths.map((audioPath, index) => (
         <Sequence
           key={audioPath}
-          from={Math.floor((startTimes[index] ?? 0) * 30)} // Convert seconds to frames at 30fps
+          from={Math.floor((startTimes[index] ?? 0) * 30)} // Convert to frames (30fps)
         >
           <Audio src={staticFile(audioPath)} />
         </Sequence>
       ))}
-      {currentWord && <Subtitle text={currentWord.text} />}
+
+      {/* Subtitles */}
+      {transcript?.words.map((word, index) => {
+        const startFrame = Math.floor(word.start * 30); // Convert to frames (30fps)
+        const endFrame = Math.floor(word.end * 30);
+        const currentFrame = Math.floor(startFrame - 6); // Show 0.2 seconds before (6 frames at 30fps)
+        const duration = endFrame - startFrame + 12; // Show 0.2 seconds after (6 frames at 30fps)
+
+        return (
+          <Sequence key={index} from={currentFrame} durationInFrames={duration}>
+            <Subtitle text={word.text} />
+          </Sequence>
+        );
+      })}
     </AbsoluteFill>
   );
 };
