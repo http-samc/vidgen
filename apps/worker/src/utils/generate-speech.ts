@@ -15,7 +15,7 @@ const VOICE_IDS = {
 export async function generateSpeech(
   scriptLine: ScriptLine,
   outputPath: string
-): Promise<string> {
+): Promise<{ path: string; speaker: string }> {
   console.log("Generating speech for", scriptLine);
   // Validate the script line
   const validatedLine = ScriptLineSchema.parse(scriptLine);
@@ -39,13 +39,21 @@ export async function generateSpeech(
   await pipeline(audio, writeStream);
 
   console.log("Generated speech for", scriptLine);
-  return outputPath;
+  return {
+    path: outputPath,
+    speaker: validatedLine.speaker,
+  };
+}
+
+interface AudioWithSpeaker {
+  path: string;
+  speaker: string;
 }
 
 export async function generateSpeechForScript(
   script: ScriptLine[],
   id: string
-): Promise<string[]> {
+): Promise<AudioWithSpeaker[]> {
   // const tempDir = join(process.cwd(), "public", id);
 
   // // Generate speech for each line in parallel
@@ -65,7 +73,12 @@ export async function generateSpeechForScript(
     "/Users/smrth/dev/vidgen/apps/worker/public/test/5_Stewie Griffin.mp3",
     "/Users/smrth/dev/vidgen/apps/worker/public/test/6_Peter Griffin.mp3",
     "/Users/smrth/dev/vidgen/apps/worker/public/test/7_Stewie Griffin.mp3",
-  ];
+  ].map((path) => ({
+    path,
+    speaker: path.includes("Peter Griffin")
+      ? "Peter Griffin"
+      : "Stewie Griffin",
+  }));
 
   return audioPaths;
 }

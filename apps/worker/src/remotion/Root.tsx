@@ -1,20 +1,8 @@
 import React from "react";
 import { Composition } from "remotion";
-import { Video } from "./Video";
+import { Video, VideoProps } from "./Video";
 import { getAudioData } from "@remotion/media-utils";
 import { staticFile } from "remotion";
-
-interface VideoProps {
-  audioPaths: string[];
-  delay: number;
-  transcript?: {
-    words: Array<{
-      text: string;
-      start: number;
-      end: number;
-    }>;
-  };
-}
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -29,6 +17,7 @@ export const RemotionRoot: React.FC = () => {
         defaultProps={{
           audioPaths: [],
           delay: 0.5,
+          assetLookup: {},
           transcript: {
             words: [],
           },
@@ -42,8 +31,8 @@ export const RemotionRoot: React.FC = () => {
 
           // Calculate total duration including delays
           const durations = await Promise.all(
-            audioPaths.map(async (audioPath) => {
-              const audioData = await getAudioData(staticFile(audioPath));
+            audioPaths.map(async (audio) => {
+              const audioData = await getAudioData(staticFile(audio.path));
               return audioData.durationInSeconds;
             })
           );

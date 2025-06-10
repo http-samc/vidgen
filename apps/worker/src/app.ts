@@ -11,6 +11,11 @@ export interface CreateVideoData {
   delay: number;
 }
 
+const CharacterAssetLookup = {
+  "Peter Griffin": "peter.png",
+  "Stewie Griffin": "stewie.jpeg",
+} as const;
+
 export async function createVideo(data: CreateVideoData): Promise<object> {
   // Generate the script
   const script = await generateScript(data);
@@ -24,7 +29,7 @@ export async function createVideo(data: CreateVideoData): Promise<object> {
 
   // Generate master transcript
   const transcript = await generateTranscript({
-    audioPaths,
+    audioPaths: audioPaths.map((audioPath) => audioPath.path),
     id: data.id,
     delay: data.delay,
   });
@@ -35,9 +40,10 @@ export async function createVideo(data: CreateVideoData): Promise<object> {
   const bundled = await bundle("./src/remotion/index.ts");
 
   // Convert all audio paths to be relative to public directory
-  const relativeAudioPaths = audioPaths.map(
-    (audioPath) => `${data.id}/${path.basename(audioPath)}`
-  );
+  const relativeAudioPaths = audioPaths.map((audioPath) => ({
+    path: `${data.id}/${path.basename(audioPath.path)}`,
+    speaker: audioPath.speaker,
+  }));
 
   // Get the composition configuration
   const composition = await selectComposition({

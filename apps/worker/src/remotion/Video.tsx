@@ -8,17 +8,25 @@ import {
 } from "remotion";
 import { getAudioData } from "@remotion/media-utils";
 
-interface Word {
-  text: string;
-  start: number;
-  end: number;
+interface AudioPath {
+  path: string;
+  speaker: string;
 }
 
-interface VideoProps {
-  audioPaths: string[];
+interface CharacterAssetLookup {
+  [key: string]: string;
+}
+
+export interface VideoProps {
+  audioPaths: AudioPath[];
   delay: number;
+  assetLookup: CharacterAssetLookup;
   transcript?: {
-    words: Word[];
+    words: Array<{
+      text: string;
+      start: number;
+      end: number;
+    }>;
   };
 }
 
@@ -50,9 +58,38 @@ const Subtitle: React.FC<{ text: string }> = ({ text }) => {
   );
 };
 
+const CharacterImage: React.FC<{ src: string }> = ({ src }) => {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        bottom: "25%",
+        left: "50%",
+        transform: "translateX(-50%)",
+        width: "200px",
+        height: "200px",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <img
+        src={src}
+        style={{
+          maxWidth: "100%",
+          maxHeight: "100%",
+          objectFit: "contain",
+        }}
+        alt="Character"
+      />
+    </div>
+  );
+};
+
 export const Video: React.FC<VideoProps> = ({
   audioPaths,
   delay,
+  assetLookup,
   transcript,
 }) => {
   const [startTimes, setStartTimes] = useState<number[]>([]);
@@ -60,7 +97,7 @@ export const Video: React.FC<VideoProps> = ({
   useEffect(() => {
     const calculateStartTimes = async () => {
       const durations = await Promise.all(
-        audioPaths.map((path) => getAudioData(staticFile(path)))
+        audioPaths.map((audio) => getAudioData(staticFile(audio.path)))
       );
 
       const times = durations.reduce<number[]>((acc, duration, index) => {
@@ -100,15 +137,21 @@ export const Video: React.FC<VideoProps> = ({
         }}
       />
 
-      {/* Audio Sequences */}
-      {audioPaths.map((audioPath, index) => (
-        <Sequence
-          key={audioPath}
-          from={Math.floor((startTimes[index] ?? 0) * 30)} // Convert to frames (30fps)
-        >
-          <Audio src={staticFile(audioPath)} />
-        </Sequence>
-      ))}
+      {/* Audio and Character Sequences */}
+      {audioPaths.map((audio, index) => {
+        const characterAsset = assetLookup[audio.speaker];
+        return (
+          <Sequence
+            key={audio.path}
+            from={Math.floor((startTimes[index] ?? 0) * 30)} // Convert to frames (30fps)
+          >
+            <Audio src={staticFile(audio.path)} />
+            {characterAsset && (
+              <CharacterImage src={staticFile(characterAsset)} />
+            )}
+          </Sequence>
+        );
+      })}
 
       {/* Subtitles */}
       {transcript?.words.map((word, index) => {
