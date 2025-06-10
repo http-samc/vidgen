@@ -1,6 +1,6 @@
-import { generateScript } from "./utils/generate-script";
-import { generateSpeechForScript } from "./utils/generate-speech";
-import { generateTranscript } from "./utils/generate-transcript";
+import { bundle } from "@remotion/bundler";
+import { renderMedia, selectComposition } from "@remotion/renderer";
+import path from "path";
 
 export interface CreateVideoData {
   prompt: string;
@@ -9,26 +9,30 @@ export interface CreateVideoData {
 }
 
 export async function createVideo(data: CreateVideoData): Promise<object> {
-  // Generate the script
-  const script = await generateScript(data);
+  // Bundle the Remotion project
+  const bundled = await bundle("./src/remotion/index.ts");
 
-  // Generate speech for each line in the script
-  const audioPaths = await generateSpeechForScript(script, data.id);
+  // Get the composition configuration
+  const composition = await selectComposition({
+    serveUrl: bundled,
+    id: "Video",
+  });
 
-  // Generate master transcript
-  const transcript = await generateTranscript({
-    audioPaths,
-    id: data.id,
-    delay: data.delay,
+  // Render the video
+  const outputPath = path.join("out", `${data.id}.mp4`);
+  await renderMedia({
+    codec: "h264",
+    serveUrl: bundled,
+    outputLocation: outputPath,
+    composition,
   });
 
   return {
-    script,
-    audioPaths,
-    transcript,
+    videoPath: outputPath,
   };
 }
 
+// Test code
 createVideo({
   id: "test",
   prompt: "How LLMs work",
