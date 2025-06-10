@@ -32,16 +32,18 @@ export async function createVideo(data: CreateVideoData): Promise<object> {
   // Bundle the Remotion project
   const bundled = await bundle("./src/remotion/index.ts");
 
-  const relativeAudioPath = `${data.id}/${path.basename(audioPaths[0]!)}`;
-
-  console.log("relativeAudioPath", relativeAudioPath);
+  // Convert all audio paths to be relative to public directory
+  const relativeAudioPaths = audioPaths.map(
+    (audioPath) => `${data.id}/${path.basename(audioPath)}`
+  );
 
   // Get the composition configuration
   const composition = await selectComposition({
     serveUrl: bundled,
     id: "Video",
     inputProps: {
-      audioPath: relativeAudioPath,
+      audioPaths: relativeAudioPaths,
+      delay: data.delay,
     },
   });
 
@@ -53,7 +55,8 @@ export async function createVideo(data: CreateVideoData): Promise<object> {
     outputLocation: outputPath,
     composition,
     inputProps: {
-      audioPath: relativeAudioPath,
+      audioPaths: relativeAudioPaths,
+      delay: data.delay,
     },
   });
 
