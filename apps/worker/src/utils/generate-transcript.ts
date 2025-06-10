@@ -71,7 +71,7 @@ export async function generateTranscript({
     // Add the duration of the last word plus the delay
     const lastWord = transcript.words[transcript.words.length - 1];
     if (lastWord?.end) {
-      currentTime = lastWord.end + currentTime + delay;
+      currentTime = lastWord.end + currentTime + 2 * delay;
     }
   }
 

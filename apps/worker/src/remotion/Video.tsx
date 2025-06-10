@@ -41,21 +41,24 @@ const Subtitle: React.FC<{ text: string }> = ({ text }) => {
     <div
       style={{
         position: "absolute",
-        bottom: "10%",
+        top: "33%", // Position 1/3 from the top
         left: "50%",
         transform: "translateX(-50%)",
         backgroundColor: "rgba(0, 0, 0, 0.7)",
-        padding: "10px 20px",
-        borderRadius: "5px",
+        padding: "15px 30px",
+        borderRadius: "8px",
         maxWidth: "80%",
         textAlign: "center",
       }}
     >
       <span
         style={{
-          color: "white",
-          fontSize: "2em",
-          textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+          color: "#FFD700", // Yellow color
+          fontSize: "3em", // Bigger text
+          fontWeight: "bold",
+          textShadow: "2px 2px 4px rgba(0, 0, 0, 0.8)",
+          letterSpacing: "0.5px",
+          fontFamily: "fantasy",
         }}
       >
         {text}

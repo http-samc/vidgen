@@ -42,7 +42,10 @@ export async function createVideo(data: CreateVideoData): Promise<object> {
     audioPaths: audioPaths.map((audio) => audio.path),
     id: data.id,
     delay: data.delay,
-  });
+  }).then((transcript) => ({
+    ...transcript,
+    words: transcript.words.filter((word) => word.type !== "spacing"),
+  }));
 
   console.log("Generating video");
 
@@ -99,6 +102,6 @@ createVideo({
   id: "test",
   prompt: "How LLMs work",
   delay: 0.5,
-  devMode: true, // Enable dev mode for faster iteration
+  devMode: false, // Enable dev mode for faster iteration
   backgroundBlurPx: 12, // Add blur to background
 }).then((result) => {});
