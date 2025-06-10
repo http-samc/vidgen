@@ -54,7 +54,7 @@ const Subtitle: React.FC<{ text: string }> = ({ text }) => {
       <span
         style={{
           color: "#FFD700", // Yellow color
-          fontSize: "3em", // Bigger text
+          fontSize: "4em", // Bigger text
           fontWeight: "bold",
           textShadow: "2px 2px 4px rgba(0, 0, 0, 0.8)",
           letterSpacing: "0.5px",
@@ -177,12 +177,14 @@ export const Video: React.FC<VideoProps> = ({
       {/* Subtitles */}
       {transcript?.words.map((word, index) => {
         const startFrame = Math.floor(word.start * 30); // Convert to frames (30fps)
-        const endFrame = Math.floor(word.end * 30);
-        const currentFrame = Math.floor(startFrame - 6); // Show 0.2 seconds before (6 frames at 30fps)
-        const duration = endFrame - startFrame + 12; // Show 0.2 seconds after (6 frames at 30fps)
+        const endFrame = Math.ceil(word.end * 30);
 
         return (
-          <Sequence key={index} from={currentFrame} durationInFrames={duration}>
+          <Sequence
+            key={index}
+            from={startFrame}
+            durationInFrames={endFrame - startFrame}
+          >
             <Subtitle text={word.text} />
           </Sequence>
         );
