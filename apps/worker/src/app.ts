@@ -10,6 +10,7 @@ export interface CreateVideoData {
   id: string;
   delay: number;
   devMode?: boolean; // When true, only render first 10 seconds
+  backgroundBlurPx?: number; // Blur amount for background video
 }
 
 const CharacterAssetLookup = {
@@ -64,6 +65,7 @@ export async function createVideo(data: CreateVideoData): Promise<object> {
       transcript,
       assetLookup: CharacterAssetLookup,
       devMode: data.devMode,
+      backgroundBlurPx: data.backgroundBlurPx,
     },
   });
 
@@ -80,6 +82,7 @@ export async function createVideo(data: CreateVideoData): Promise<object> {
       transcript,
       assetLookup: CharacterAssetLookup,
       devMode: data.devMode,
+      backgroundBlurPx: data.backgroundBlurPx,
     },
   });
 
@@ -97,4 +100,5 @@ createVideo({
   prompt: "How LLMs work",
   delay: 0.5,
   devMode: true, // Enable dev mode for faster iteration
+  backgroundBlurPx: 12, // Add blur to background
 }).then((result) => {});

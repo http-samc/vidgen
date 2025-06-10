@@ -26,6 +26,7 @@ export interface VideoProps {
   delay: number;
   assetLookup: CharacterAssetLookup;
   devMode?: boolean;
+  backgroundBlurPx?: number;
   transcript?: {
     words: Array<{
       text: string;
@@ -99,6 +100,7 @@ export const Video: React.FC<VideoProps> = ({
   delay,
   assetLookup,
   transcript,
+  backgroundBlurPx = 0,
 }) => {
   const [startTimes, setStartTimes] = useState<number[]>([]);
   const [durations, setDurations] = useState<number[]>([]);
@@ -144,7 +146,7 @@ export const Video: React.FC<VideoProps> = ({
           width: "100%",
           height: "100%",
           objectFit: "cover",
-          filter: "blur(8px)",
+          filter: `blur(${backgroundBlurPx}px)`,
         }}
       />
 
