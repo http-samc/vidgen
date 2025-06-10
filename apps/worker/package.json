@@ -17,6 +17,7 @@
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "devDependencies": {
+    "@types/node": "^22.15.3",
     "@vidgen/eslint-config": "workspace:*",
     "@vidgen/typescript-config": "workspace:*",
     "eslint": "^9.28.0",
@@ -27,6 +28,7 @@
     "@ai-sdk/anthropic": "2.0.0-alpha.11",
     "@ai-sdk/elevenlabs": "1.0.0-alpha.11",
     "@elevenlabs/client": "^0.1.7",
+    "@elevenlabs/elevenlabs-js": "^2.2.0",
     "@vercel/ai-sdk-gateway": "^0.1.10",
     "ai": "5.0.0-alpha.11",
     "bullmq": "^5.53.0",
