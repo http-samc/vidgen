@@ -44,6 +44,7 @@ export async function createVideo(data: CreateVideoData): Promise<object> {
     inputProps: {
       audioPaths: relativeAudioPaths,
       delay: data.delay,
+      onDurationChange: () => {},
     },
   });
 
@@ -57,6 +58,7 @@ export async function createVideo(data: CreateVideoData): Promise<object> {
     inputProps: {
       audioPaths: relativeAudioPaths,
       delay: data.delay,
+      onDurationChange: () => {},
     },
   });
 

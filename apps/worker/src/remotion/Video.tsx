@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  AbsoluteFill,
-  Audio,
-  Sequence,
-  staticFile,
-  useCurrentFrame,
-} from "remotion";
+import { AbsoluteFill, Audio, Sequence, staticFile } from "remotion";
 import { getAudioData } from "@remotion/media-utils";
 
 interface VideoProps {
@@ -14,46 +8,33 @@ interface VideoProps {
 }
 
 export const Video: React.FC<VideoProps> = ({ audioPaths, delay }) => {
-  const [durations, setDurations] = React.useState<number[]>([]);
-  const [totalDuration, setTotalDuration] = React.useState(0);
+  const [startTimes, setStartTimes] = React.useState<number[]>([]);
 
   React.useEffect(() => {
-    const loadDurations = async () => {
-      const audioDurations = await Promise.all(
+    const calculateStartTimes = async () => {
+      // Get durations for all audio files
+      const durations = await Promise.all(
         audioPaths.map(async (audioPath) => {
           const audioData = await getAudioData(staticFile(audioPath));
           return audioData.durationInSeconds;
         })
       );
-      setDurations(audioDurations);
 
-      // Calculate total duration including delays
-      const total = audioDurations.reduce(
-        (acc: number, duration: number, index: number) => {
-          return (
-            acc + duration + (index < audioDurations.length - 1 ? delay : 0)
-          );
-        },
-        0
-      );
-      setTotalDuration(total);
+      // Calculate start times based on cumulative durations and delays
+      const times = durations.reduce<number[]>((acc, duration, index) => {
+        const previousStart = index === 0 ? 0 : (acc[index - 1] ?? 0);
+        const previousDuration = index === 0 ? 0 : (durations[index - 1] ?? 0);
+        return [
+          ...acc,
+          previousStart + previousDuration + (index === 0 ? 0 : delay),
+        ];
+      }, []);
+
+      setStartTimes(times);
     };
 
-    loadDurations();
+    calculateStartTimes();
   }, [audioPaths, delay]);
-
-  // Calculate start times for each audio file
-  const startTimes = durations.reduce<number[]>(
-    (acc: number[], duration: number, index: number) => {
-      const previousStart = index === 0 ? 0 : (acc[index - 1] ?? 0);
-      const previousDuration = index === 0 ? 0 : (durations[index - 1] ?? 0);
-      return [
-        ...acc,
-        previousStart + previousDuration + (index === 0 ? 0 : delay),
-      ];
-    },
-    []
-  );
 
   return (
     <AbsoluteFill style={{ backgroundColor: "black" }}>
