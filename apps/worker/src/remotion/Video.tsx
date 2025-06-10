@@ -101,20 +101,22 @@ export const Video: React.FC<VideoProps> = ({
   transcript,
 }) => {
   const [startTimes, setStartTimes] = useState<number[]>([]);
+  const [durations, setDurations] = useState<number[]>([]);
 
   useEffect(() => {
     const calculateStartTimes = async () => {
-      const durations = await Promise.all(
+      const audioData = await Promise.all(
         audioPaths.map((audio) => getAudioData(staticFile(audio.path)))
       );
 
-      const times = durations.reduce<number[]>((acc, duration, index) => {
+      const times = audioData.reduce<number[]>((acc, _, index) => {
         const previousStart = acc[index - 1] ?? 0;
-        const previousDuration = durations[index - 1]?.durationInSeconds ?? 0;
+        const previousDuration = audioData[index - 1]?.durationInSeconds ?? 0;
         return [...acc, previousStart + previousDuration + delay];
       }, []);
 
       setStartTimes(times);
+      setDurations(audioData.map((data) => data.durationInSeconds));
     };
 
     calculateStartTimes();
@@ -148,10 +150,17 @@ export const Video: React.FC<VideoProps> = ({
       {/* Audio and Character Sequences */}
       {audioPaths.map((audio, index) => {
         const characterAsset = assetLookup[audio.speaker];
+        const startFrame = Math.floor((startTimes[index] ?? 0) * 30); // Convert to frames (30fps)
+        const durationInFrames = Math.max(
+          1,
+          Math.ceil((durations[index] ?? 0) * 30)
+        ); // Ensure minimum duration of 1 frame
+
         return (
           <Sequence
             key={audio.path}
-            from={Math.floor((startTimes[index] ?? 0) * 30)} // Convert to frames (30fps)
+            from={startFrame}
+            durationInFrames={durationInFrames}
           >
             <Audio src={staticFile(audio.path)} />
             {characterAsset && <CharacterImage {...characterAsset} />}

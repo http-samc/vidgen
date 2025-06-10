@@ -20,7 +20,7 @@ const CharacterAssetLookup = {
   },
   "Stewie Griffin": {
     path: "stewie.png",
-    width: 250,
+    width: 300,
     position: "right",
   },
 } as const;
