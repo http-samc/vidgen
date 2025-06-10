@@ -14,13 +14,18 @@ interface AudioPath {
 }
 
 interface CharacterAssetLookup {
-  [key: string]: string;
+  [speaker: string]: {
+    path: string;
+    width: number;
+    position: "left" | "right";
+  };
 }
 
 export interface VideoProps {
   audioPaths: AudioPath[];
   delay: number;
   assetLookup: CharacterAssetLookup;
+  devMode?: boolean;
   transcript?: {
     words: Array<{
       text: string;
@@ -58,26 +63,29 @@ const Subtitle: React.FC<{ text: string }> = ({ text }) => {
   );
 };
 
-const CharacterImage: React.FC<{ src: string }> = ({ src }) => {
+const CharacterImage: React.FC<CharacterAssetLookup[string]> = ({
+  path,
+  width,
+  position,
+}) => {
   return (
     <div
       style={{
         position: "absolute",
         bottom: "25%",
-        left: "50%",
-        transform: "translateX(-50%)",
-        width: "200px",
-        height: "200px",
+        left: 0,
+        right: 0,
+        padding: "0 50px",
         display: "flex",
-        justifyContent: "center",
+        justifyContent: position === "left" ? "flex-start" : "flex-end",
         alignItems: "center",
       }}
     >
       <img
-        src={src}
+        src={staticFile(path)}
         style={{
-          maxWidth: "100%",
-          maxHeight: "100%",
+          width: width,
+          height: "auto",
           objectFit: "contain",
         }}
         alt="Character"
@@ -146,9 +154,7 @@ export const Video: React.FC<VideoProps> = ({
             from={Math.floor((startTimes[index] ?? 0) * 30)} // Convert to frames (30fps)
           >
             <Audio src={staticFile(audio.path)} />
-            {characterAsset && (
-              <CharacterImage src={staticFile(characterAsset)} />
-            )}
+            {characterAsset && <CharacterImage {...characterAsset} />}
           </Sequence>
         );
       })}

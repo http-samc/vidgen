@@ -9,11 +9,20 @@ export interface CreateVideoData {
   prompt: string;
   id: string;
   delay: number;
+  devMode?: boolean; // When true, only render first 10 seconds
 }
 
 const CharacterAssetLookup = {
-  "Peter Griffin": "peter.png",
-  "Stewie Griffin": "stewie.jpeg",
+  "Peter Griffin": {
+    path: "peter.png",
+    width: 400,
+    position: "left",
+  },
+  "Stewie Griffin": {
+    path: "stewie.png",
+    width: 250,
+    position: "right",
+  },
 } as const;
 
 export async function createVideo(data: CreateVideoData): Promise<object> {
@@ -29,7 +38,7 @@ export async function createVideo(data: CreateVideoData): Promise<object> {
 
   // Generate master transcript
   const transcript = await generateTranscript({
-    audioPaths: audioPaths.map((audioPath) => audioPath.path),
+    audioPaths: audioPaths.map((audio) => audio.path),
     id: data.id,
     delay: data.delay,
   });
@@ -40,9 +49,9 @@ export async function createVideo(data: CreateVideoData): Promise<object> {
   const bundled = await bundle("./src/remotion/index.ts");
 
   // Convert all audio paths to be relative to public directory
-  const relativeAudioPaths = audioPaths.map((audioPath) => ({
-    path: `${data.id}/${path.basename(audioPath.path)}`,
-    speaker: audioPath.speaker,
+  const relativeAudioPaths = audioPaths.map((audio) => ({
+    path: `${data.id}/${path.basename(audio.path)}`,
+    speaker: audio.speaker,
   }));
 
   // Get the composition configuration
@@ -53,6 +62,8 @@ export async function createVideo(data: CreateVideoData): Promise<object> {
       audioPaths: relativeAudioPaths,
       delay: data.delay,
       transcript,
+      assetLookup: CharacterAssetLookup,
+      devMode: data.devMode,
     },
   });
 
@@ -67,6 +78,8 @@ export async function createVideo(data: CreateVideoData): Promise<object> {
       audioPaths: relativeAudioPaths,
       delay: data.delay,
       transcript,
+      assetLookup: CharacterAssetLookup,
+      devMode: data.devMode,
     },
   });
 
@@ -83,4 +96,5 @@ createVideo({
   id: "test",
   prompt: "How LLMs work",
   delay: 0.5,
+  devMode: true, // Enable dev mode for faster iteration
 }).then((result) => {});

@@ -21,12 +21,18 @@ export const RemotionRoot: React.FC = () => {
           transcript: {
             words: [],
           },
+          devMode: false,
         }}
         calculateMetadata={async ({ props }) => {
-          const { audioPaths, delay } = props as unknown as VideoProps;
+          const { audioPaths, delay, devMode } = props as unknown as VideoProps;
 
           if (!audioPaths.length) {
             return { durationInFrames: 300 }; // Default 10 seconds if no audio
+          }
+
+          // In dev mode, only render first 10 seconds
+          if (devMode) {
+            return { durationInFrames: 300 }; // 10 seconds at 30fps
           }
 
           // Calculate total duration including delays
