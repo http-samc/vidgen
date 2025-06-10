@@ -4,7 +4,7 @@ import {
   Audio,
   Sequence,
   staticFile,
-  Video as RemotionVideo,
+  OffthreadVideo as RemotionVideo,
 } from "remotion";
 import { getAudioData } from "@remotion/media-utils";
 
@@ -144,6 +144,7 @@ export const Video: React.FC<VideoProps> = ({
           width: "100%",
           height: "100%",
           objectFit: "cover",
+          filter: "blur(8px)",
         }}
       />
 
