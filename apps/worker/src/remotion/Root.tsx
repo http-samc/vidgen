@@ -7,11 +7,14 @@ export const RemotionRoot: React.FC = () => {
     <>
       <Composition
         id="Video"
-        component={Video}
+        component={Video as React.ComponentType}
         durationInFrames={300} // 10 seconds at 30fps
         fps={30}
         width={1080}
         height={1920}
+        defaultProps={{
+          audioPath: "",
+        }}
       />
     </>
   );

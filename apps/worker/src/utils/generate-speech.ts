@@ -46,7 +46,7 @@ export async function generateSpeechForScript(
   script: ScriptLine[],
   id: string
 ): Promise<string[]> {
-  // const tempDir = join(process.cwd(), "temp", id);
+  // const tempDir = join(process.cwd(), "public", id);
 
   // // Generate speech for each line in parallel
   // const audioPaths = await Promise.all(
@@ -57,14 +57,14 @@ export async function generateSpeechForScript(
   // );
 
   const audioPaths = [
-    "/Users/smrth/dev/vidgen/apps/worker/temp/test/0_Peter Griffin.mp3",
-    "/Users/smrth/dev/vidgen/apps/worker/temp/test/1_Stewie Griffin.mp3",
-    "/Users/smrth/dev/vidgen/apps/worker/temp/test/2_Peter Griffin.mp3",
-    "/Users/smrth/dev/vidgen/apps/worker/temp/test/3_Stewie Griffin.mp3",
-    "/Users/smrth/dev/vidgen/apps/worker/temp/test/4_Peter Griffin.mp3",
-    "/Users/smrth/dev/vidgen/apps/worker/temp/test/5_Stewie Griffin.mp3",
-    "/Users/smrth/dev/vidgen/apps/worker/temp/test/6_Peter Griffin.mp3",
-    "/Users/smrth/dev/vidgen/apps/worker/temp/test/7_Stewie Griffin.mp3",
+    "/Users/smrth/dev/vidgen/apps/worker/public/test/0_Peter Griffin.mp3",
+    "/Users/smrth/dev/vidgen/apps/worker/public/test/1_Stewie Griffin.mp3",
+    "/Users/smrth/dev/vidgen/apps/worker/public/test/2_Peter Griffin.mp3",
+    "/Users/smrth/dev/vidgen/apps/worker/public/test/3_Stewie Griffin.mp3",
+    "/Users/smrth/dev/vidgen/apps/worker/public/test/4_Peter Griffin.mp3",
+    "/Users/smrth/dev/vidgen/apps/worker/public/test/5_Stewie Griffin.mp3",
+    "/Users/smrth/dev/vidgen/apps/worker/public/test/6_Peter Griffin.mp3",
+    "/Users/smrth/dev/vidgen/apps/worker/public/test/7_Stewie Griffin.mp3",
   ];
 
   return audioPaths;
