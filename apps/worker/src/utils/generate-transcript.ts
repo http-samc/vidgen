@@ -1,8 +1,11 @@
-import { SpeechToTextWordResponseModel } from "@elevenlabs/elevenlabs-js/api";
+import {
+  SpeechToTextChunkResponseModel,
+  SpeechToTextWordResponseModel,
+} from "@elevenlabs/elevenlabs-js/api";
 import elevenLabs from "../lib/elevenlabs";
 import { createReadStream, existsSync } from "fs";
 import { writeFile, readFile } from "fs/promises";
-import { join } from "path";
+import { basename, join } from "path";
 
 interface TranscriptGenerationData {
   audioPaths: string[];
@@ -15,49 +18,60 @@ export async function generateTranscript({
   id,
   delay,
 }: TranscriptGenerationData) {
-  // Check if transcript already exists
-  const transcriptPath = join(process.cwd(), "temp", id, "transcript.json");
-  if (existsSync(transcriptPath)) {
-    console.warn("Transcript already exists, skipping transcription");
-    const content = await readFile(transcriptPath, "utf-8");
-    return JSON.parse(content);
-  }
-
-  // Transcribe each audio file
   const transcripts = await Promise.all(
     audioPaths.map(async (path) => {
-      const audioStream = createReadStream(path);
-      console.log("Transcribing", path);
-      const response = await elevenLabs.speechToText.convert({
-        file: audioStream,
-        modelId: "scribe_v1",
-        languageCode: "en",
-      });
-      console.log("Generated transcript for ", path);
+      const transcriptPath = join(
+        process.cwd(),
+        "temp",
+        id,
+        `${basename(path)}.json`
+      );
+      if (existsSync(transcriptPath)) {
+        // Use cached transcript
+        const content = await readFile(transcriptPath, "utf-8");
+        console.log("Found cached transcript for ", path);
+        return JSON.parse(content) as SpeechToTextChunkResponseModel;
+      } else {
+        // Transcribe the audio file if it doesn't exist
+        const audioStream = createReadStream(path);
 
-      return response;
+        console.log("Transcribing", path);
+        const response = await elevenLabs.speechToText.convert({
+          file: audioStream,
+          modelId: "scribe_v1",
+          languageCode: "en",
+        });
+
+        console.log("Generated transcript for ", path);
+        await writeFile(transcriptPath, JSON.stringify(response, null, 2));
+        return response;
+      }
     })
   );
 
   // Calculate cumulative durations for timestamp adjustments
-  let cumulativeDuration = 0;
+  let currentTime = 0;
   const mergedWords: SpeechToTextWordResponseModel[] = [];
 
   // Merge transcripts and adjust timestamps
-  for (const transcript of transcripts) {
-    // Adjust timestamps for each word
+  for (let i = 0; i < transcripts.length; i++) {
+    const transcript = transcripts[i];
+    if (!transcript) continue;
+
+    // Adjust timestamps for each word in the current transcript
     const adjustedWords = transcript.words.map((word) => ({
       ...word,
-      start: (word.start ?? 0) + cumulativeDuration + delay,
-      end: (word.end ?? 0) + cumulativeDuration + delay,
+      start: (word.start ?? 0) + currentTime,
+      end: (word.end ?? 0) + currentTime,
     }));
 
     mergedWords.push(...adjustedWords);
 
-    // Update cumulative duration for next transcript
+    // Update currentTime for next transcript
+    // Add the duration of the last word plus the delay
     const lastWord = transcript.words[transcript.words.length - 1];
     if (lastWord?.end) {
-      cumulativeDuration = lastWord.end + delay;
+      currentTime = lastWord.end + currentTime + delay;
     }
   }
 

@@ -29,6 +29,8 @@ export async function createVideo(data: CreateVideoData): Promise<object> {
     delay: data.delay,
   });
 
+  console.log("Generating video");
+
   // Bundle the Remotion project
   const bundled = await bundle("./src/remotion/index.ts");
 
@@ -44,7 +46,7 @@ export async function createVideo(data: CreateVideoData): Promise<object> {
     inputProps: {
       audioPaths: relativeAudioPaths,
       delay: data.delay,
-      onDurationChange: () => {},
+      transcript,
     },
   });
 
@@ -58,7 +60,7 @@ export async function createVideo(data: CreateVideoData): Promise<object> {
     inputProps: {
       audioPaths: relativeAudioPaths,
       delay: data.delay,
-      onDurationChange: () => {},
+      transcript,
     },
   });
 

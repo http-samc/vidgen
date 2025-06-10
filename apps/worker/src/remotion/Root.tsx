@@ -7,6 +7,13 @@ import { staticFile } from "remotion";
 interface VideoProps {
   audioPaths: string[];
   delay: number;
+  transcript?: {
+    words: Array<{
+      text: string;
+      start: number;
+      end: number;
+    }>;
+  };
 }
 
 export const RemotionRoot: React.FC = () => {
@@ -22,6 +29,9 @@ export const RemotionRoot: React.FC = () => {
         defaultProps={{
           audioPaths: [],
           delay: 0.5,
+          transcript: {
+            words: [],
+          },
         }}
         calculateMetadata={async ({ props }) => {
           const { audioPaths, delay } = props as unknown as VideoProps;

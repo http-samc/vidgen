@@ -1,14 +1,59 @@
 import React from "react";
-import { AbsoluteFill, Audio, Sequence, staticFile } from "remotion";
+import {
+  AbsoluteFill,
+  Audio,
+  Sequence,
+  staticFile,
+  useCurrentFrame,
+} from "remotion";
 import { getAudioData } from "@remotion/media-utils";
+
+interface Word {
+  text: string;
+  start: number;
+  end: number;
+}
 
 interface VideoProps {
   audioPaths: string[];
   delay: number;
+  transcript?: {
+    words: Word[];
+  };
 }
 
-export const Video: React.FC<VideoProps> = ({ audioPaths, delay }) => {
+const Subtitle: React.FC<{ text: string }> = ({ text }) => {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        bottom: "10%",
+        left: "50%",
+        transform: "translateX(-50%)",
+        color: "white",
+        fontSize: "48px",
+        fontFamily: "Arial",
+        textAlign: "center",
+        textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
+        maxWidth: "80%",
+        padding: "20px",
+        backgroundColor: "rgba(0,0,0,0.5)",
+        borderRadius: "10px",
+      }}
+    >
+      {text}
+    </div>
+  );
+};
+
+export const Video: React.FC<VideoProps> = ({
+  audioPaths,
+  delay,
+  transcript,
+}) => {
   const [startTimes, setStartTimes] = React.useState<number[]>([]);
+  const currentFrame = useCurrentFrame();
+  const currentTime = currentFrame / 30; // Convert frames to seconds
 
   React.useEffect(() => {
     const calculateStartTimes = async () => {
@@ -36,6 +81,11 @@ export const Video: React.FC<VideoProps> = ({ audioPaths, delay }) => {
     calculateStartTimes();
   }, [audioPaths, delay]);
 
+  // Find the current word based on timing
+  const currentWord = transcript?.words.find(
+    (word) => currentTime >= word.start - 0.2 && currentTime <= word.end + 0.2
+  );
+
   return (
     <AbsoluteFill style={{ backgroundColor: "black" }}>
       {audioPaths.map((audioPath, index) => (
@@ -46,6 +96,7 @@ export const Video: React.FC<VideoProps> = ({ audioPaths, delay }) => {
           <Audio src={staticFile(audioPath)} />
         </Sequence>
       ))}
+      {currentWord && <Subtitle text={currentWord.text} />}
     </AbsoluteFill>
   );
 };
