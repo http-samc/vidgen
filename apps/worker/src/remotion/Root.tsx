@@ -43,9 +43,12 @@ export const RemotionRoot: React.FC = () => {
             })
           );
 
-          const totalDuration = durations.reduce((acc, duration, index) => {
-            return acc + duration + (index < durations.length - 1 ? delay : 0);
-          }, 0);
+          const totalDuration =
+            durations.reduce((acc, duration, index) => {
+              return (
+                acc + duration + (index < durations.length - 1 ? delay : 0)
+              );
+            }, 0) + 2; // Add 2 second buffer
 
           return {
             durationInFrames: Math.ceil(totalDuration * 30), // Convert to frames at 30fps

@@ -5,6 +5,8 @@ import {
   Sequence,
   staticFile,
   OffthreadVideo as RemotionVideo,
+  spring,
+  useCurrentFrame,
 } from "remotion";
 import { getAudioData } from "@remotion/media-utils";
 
@@ -37,18 +39,42 @@ export interface VideoProps {
 }
 
 const Subtitle: React.FC<{ text: string }> = ({ text }) => {
+  const frame = useCurrentFrame();
+  const opacity = spring({
+    frame,
+    fps: 30,
+    from: 0,
+    to: 1,
+    durationInFrames: 15,
+    config: {
+      damping: 12,
+      mass: 0.5,
+    },
+  });
+
   return (
     <div
       style={{
         position: "absolute",
         top: "33%", // Position 1/3 from the top
         left: "50%",
-        transform: "translateX(-50%)",
+        transform: `translateX(-50%) translateY(${spring({
+          frame,
+          fps: 30,
+          from: 10,
+          to: 0,
+          durationInFrames: 15,
+          config: {
+            damping: 12,
+            mass: 0.5,
+          },
+        })}px)`,
         backgroundColor: "rgba(0, 0, 0, 0.7)",
         padding: "15px 30px",
         borderRadius: "8px",
         maxWidth: "80%",
         textAlign: "center",
+        opacity,
       }}
     >
       <span
@@ -131,11 +157,11 @@ export const Video: React.FC<VideoProps> = ({
   const lastStartTime = startTimes[startTimes.length - 1];
   const totalDuration =
     startTimes.length > 0 && lastStartTime !== undefined
-      ? lastStartTime + (audioPaths.length > 0 ? 30 * 5 : 0) // Add 5 seconds buffer
+      ? lastStartTime + (audioPaths.length > 0 ? 5 : 0) // Add 2 second buffer
       : 0;
 
   const startFrom = 30 * 30; // 30 seconds in frames
-  const endAt = startFrom + totalDuration * 30; // Convert totalDuration to frames and add to startFrom
+  const endAt = startFrom + (totalDuration + 5) * 30; // Add 2 second buffer
 
   return (
     <AbsoluteFill>

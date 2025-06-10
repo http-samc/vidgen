@@ -102,6 +102,6 @@ createVideo({
   id: "test",
   prompt: "How LLMs work",
   delay: 0.5,
-  devMode: false, // Enable dev mode for faster iteration
+  devMode: true, // Enable dev mode for faster iteration
   backgroundBlurPx: 12, // Add blur to background
 }).then((result) => {});

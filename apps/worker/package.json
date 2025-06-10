@@ -33,6 +33,7 @@
     "@remotion/cli": "^4.0.314",
     "@remotion/media-utils": "^4.0.314",
     "@remotion/renderer": "^4.0.314",
+    "@remotion/transitions": "^4.0.314",
     "@types/react": "19.1.0",
     "@vercel/ai-sdk-gateway": "^0.1.10",
     "ai": "5.0.0-alpha.11",
