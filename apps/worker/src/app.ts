@@ -7,11 +7,21 @@ import { Worker } from "bullmq";
 import { connection } from "./lib/bullmq";
 import { CreateVideoData } from "./index";
 
-export async function createVideo(data: CreateVideoData) {
+interface JobProgress {
+  state: string;
+  progress: number;
+}
+
+export async function createVideo(
+  data: CreateVideoData,
+  updateProgress: (progress: JobProgress) => Promise<void>
+) {
   // Generate the script
+  await updateProgress({ state: "Generating script...", progress: 0 });
   const script = await generateScript(data);
 
   // Generate speech for each line in the script
+  await updateProgress({ state: "Generating speech...", progress: 20 });
   const audioPaths = await generateSpeechForScript(
     script,
     data.id,
@@ -23,11 +33,8 @@ export async function createVideo(data: CreateVideoData) {
     )
   );
 
-  if (!audioPaths.length) {
-    throw new Error("No audio files were generated");
-  }
-
   // Generate master transcript
+  await updateProgress({ state: "Generating transcript...", progress: 40 });
   const transcript = await generateTranscript({
     audioPaths: audioPaths.map((audio) => audio.path),
     id: data.id,
@@ -45,6 +52,7 @@ export async function createVideo(data: CreateVideoData) {
   }));
 
   // Generate the video
+  await updateProgress({ state: "Generating video...", progress: 50 });
   const videoPath = await generateVideo({
     audioPaths,
     id: data.id,
@@ -59,6 +67,7 @@ export async function createVideo(data: CreateVideoData) {
     assetLookup: data.characterAssets,
     transcript,
   });
+  await updateProgress({ state: "Video generation complete", progress: 100 });
 
   return { url: videoPath };
 }
@@ -66,7 +75,18 @@ export async function createVideo(data: CreateVideoData) {
 const worker = new Worker<Omit<CreateVideoData, "id">, { url: string }>(
   process.env.QUEUE_NAME!,
   async (job) => {
-    return await createVideo({ ...job.data, id: job.id ?? job.name });
+    const updateProgress = async (progress: JobProgress) => {
+      // Store both progress and state in the progress object
+      await job.updateProgress({
+        progress: progress.progress,
+        state: progress.state,
+      });
+    };
+
+    return await createVideo(
+      { ...job.data, id: job.id ?? job.name },
+      updateProgress
+    );
   },
   {
     connection: connection,

@@ -4,6 +4,7 @@ import { Queue } from "bullmq";
 import { connection } from "../lib/bullmq";
 import { CreateVideoData } from "@vidgen/worker";
 import { VideoForm } from "./components/VideoForm";
+import { redirect } from "next/navigation";
 
 async function createVideo(prompt: string) {
   "use server";
@@ -14,6 +15,8 @@ async function createVideo(prompt: string) {
       connection: connection,
     }
   );
+
+  let jobId: string | undefined;
 
   try {
     const job = await queue.add("video-generation", {
@@ -35,14 +38,19 @@ async function createVideo(prompt: string) {
       delay: 0.5,
       backgroundBlur: "high",
     });
-
-    return { success: true, jobId: job.id };
+    jobId = job.id;
   } catch (error) {
     console.error("Failed to create video:", error);
     return { success: false, error: "Failed to create video" };
   } finally {
     await queue.close();
   }
+
+  if (!jobId) {
+    return { success: false, error: "Failed to get job ID" };
+  }
+
+  redirect(`/jobs/${jobId}`);
 }
 
 export default function Home() {

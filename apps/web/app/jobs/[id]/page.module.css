@@ -1,0 +1,16 @@
+.container {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.json {
+  background-color: #f5f5f5;
+  color: #000;
+  padding: 1rem;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-family: monospace;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}

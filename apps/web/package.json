@@ -17,14 +17,15 @@
     "ioredis": "^5.6.1",
     "next": "^15.3.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "swr": "^2.3.3"
   },
   "devDependencies": {
-    "@vidgen/eslint-config": "workspace:*",
-    "@vidgen/typescript-config": "workspace:*",
     "@types/node": "^22.15.3",
     "@types/react": "19.1.0",
     "@types/react-dom": "19.1.1",
+    "@vidgen/eslint-config": "workspace:*",
+    "@vidgen/typescript-config": "workspace:*",
     "eslint": "^9.28.0",
     "typescript": "5.8.2"
   }

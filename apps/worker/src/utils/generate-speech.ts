@@ -71,5 +71,9 @@ export async function generateSpeechForScript(
     })
   );
 
+  if (!audioPaths.length) {
+    throw new Error("No audio files were generated");
+  }
+
   return audioPaths;
 }
