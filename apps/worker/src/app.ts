@@ -1,7 +1,8 @@
+/* eslint-disable turbo/no-undeclared-env-vars */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { generateScript } from "./utils/generate-script";
 import { generateSpeechForScript } from "./utils/generate-speech";
 import { generateVideo } from "./utils/generate-video";
-import type { CharacterAssetLookup } from "./utils/generate-video";
 import { generateTranscript } from "./utils/generate-transcript";
 import { Worker } from "bullmq";
 import { connection } from "./lib/bullmq";

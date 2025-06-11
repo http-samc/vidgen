@@ -8,6 +8,8 @@ export function initAuth(options: {
   baseUrl: string;
   productionUrl: string;
   secret: string | undefined;
+  githubClientId: string;
+  githubClientSecret: string;
 }) {
   const config = {
     database: drizzleAdapter(db, {
@@ -16,6 +18,10 @@ export function initAuth(options: {
     baseURL: options.baseUrl,
     secret: options.secret,
     socialProviders: {
+      github: {
+        clientId: options.githubClientId,
+        clientSecret: options.githubClientSecret,
+      },
     },
   } satisfies BetterAuthOptions;
 
