@@ -8,6 +8,10 @@
       "types": "./dist/index.d.ts",
       "default": "./src/index.ts"
     },
+    "./queue": {
+      "types": "./dist/queue.d.ts",
+      "default": "./src/queue.ts"
+    },
     "./client": {
       "types": "./dist/client.d.ts",
       "default": "./src/client.ts"
@@ -30,8 +34,10 @@
   },
   "dependencies": {
     "@vercel/postgres": "^0.10.0",
+    "bullmq": "^5.53.0",
     "drizzle-orm": "^0.44.1",
     "drizzle-zod": "^0.8.2",
+    "ioredis": "^5.6.1",
     "pg": "^8.16.0",
     "zod": "catalog:"
   },
