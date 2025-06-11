@@ -7,6 +7,8 @@ import { Worker } from "bullmq";
 import { connection } from "./lib/bullmq";
 import { CreateVideoData } from "./index";
 import { uploadVideoToUploadThing } from "./utils/upload-video";
+import { rm } from "fs/promises";
+import { join } from "path";
 
 interface JobProgress {
   state: string;
@@ -40,17 +42,7 @@ export async function createVideo(
     audioPaths: audioPaths.map((audio) => audio.path),
     id: data.id,
     delay: data.delay,
-  }).then((transcript) => ({
-    ...transcript,
-    words: transcript.words
-      .filter((word) => word.type !== "spacing")
-      .map((word) => ({
-        text: word.text,
-        start: word.start ?? 0,
-        end: word.end ?? 0,
-        type: word.type,
-      })),
-  }));
+  });
 
   // Generate the video
   await updateProgress({ state: "Generating video...", progress: 50 });
@@ -70,8 +62,21 @@ export async function createVideo(
   });
 
   // Upload the video to UploadThing
-  await updateProgress({ state: "Uploading video...", progress: 90 });
+  await updateProgress({ state: "Uploading video...", progress: 85 });
   const url = await uploadVideoToUploadThing(videoPath, data.id);
+
+  // Clean up the production artifacts
+  await updateProgress({
+    state: "Cleaning up temporary files...",
+    progress: 95,
+  });
+  await Promise.all([
+    rm(join(process.cwd(), "temp", data.id), { recursive: true, force: true }),
+    rm(join(process.cwd(), "public", data.id), {
+      recursive: true,
+      force: true,
+    }),
+  ]);
 
   await updateProgress({ state: "Video generation complete", progress: 100 });
 

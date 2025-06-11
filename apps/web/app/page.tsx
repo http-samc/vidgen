@@ -37,6 +37,7 @@ async function createVideo(prompt: string) {
       },
       delay: 0.5,
       backgroundBlur: "high",
+      devMode: false,
     });
     jobId = job.id;
   } catch (error) {

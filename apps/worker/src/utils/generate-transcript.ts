@@ -75,10 +75,38 @@ export async function generateTranscript({
     }
   }
 
+  const windowSize = 2;
+  const words: {
+    start: number;
+    end: number;
+    text: string;
+  }[] = [];
+  for (
+    let i = 0;
+    i < Math.ceil(mergedWords[mergedWords.length - 1]!.end! / windowSize);
+    i++
+  ) {
+    const windowStart = i * windowSize;
+    const windowEnd = windowStart + windowSize;
+    const windowWords = mergedWords.filter(
+      (word) => word.start! >= windowStart && word.start! < windowEnd
+    );
+    const windowText = windowWords
+      .map((word) => word.text.trim())
+      .filter((text) => !!text)
+      .join(" ")
+      .trim();
+    words.push({
+      start: windowStart,
+      end: windowEnd,
+      text: windowText,
+    });
+  }
+
   // Create the final merged transcript
   const mergedTranscript = {
-    text: mergedWords.map((word) => word.text).join(""),
-    words: mergedWords,
+    text: words.map((word) => word.text).join(""),
+    words,
   };
 
   // Save the merged transcript to a JSON file
