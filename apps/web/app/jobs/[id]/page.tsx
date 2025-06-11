@@ -17,8 +17,10 @@ export default function JobPage({ params }: { params: { id: string } }) {
 
   return (
     <div className={styles.container}>
-      <h1>Job Status</h1>
-      <pre className={styles.json}>{JSON.stringify(data, null, 2)}</pre>
+      <h1 style={{ fontFamily: "monospace" }}>
+        Status: {data.state} ({data.progress}%)
+      </h1>
+      {data.url ? <video src={data.url} autoPlay loop /> : null}
     </div>
   );
 }
