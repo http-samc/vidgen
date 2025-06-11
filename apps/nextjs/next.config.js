@@ -15,6 +15,13 @@ const config = {
     "@acme/ui",
     "@acme/validators",
   ],
+  images: {
+    remotePatterns: [
+      {
+        hostname: "avatars.githubusercontent.com"
+      }
+    ]
+  },
 
   /** We already do linting and typechecking as separate tasks in CI */
   eslint: { ignoreDuringBuilds: true },

@@ -1,9 +1,13 @@
-import React from 'react'
+import React from "react";
+
+import PromptInput from "~/components/prompt-input";
 
 const Page = () => {
   return (
-    <div>page</div>
-  )
-}
+    <div>
+      <PromptInput />
+    </div>
+  );
+};
 
-export default Page
+export default Page;
