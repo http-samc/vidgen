@@ -35,7 +35,7 @@ export async function generateTranscript({
         // Transcribe the audio file if it doesn't exist
         const audioStream = createReadStream(path);
 
-        console.log("Transcribing", path);
+        console.info("Transcribing", path);
         const response = await elevenLabs.speechToText.convert({
           file: audioStream,
           modelId: "scribe_v1",

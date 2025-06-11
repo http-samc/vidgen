@@ -20,6 +20,7 @@ interface CharacterAssetLookup {
     path: string;
     width: number;
     position: "left" | "right";
+    voice: string;
   };
 }
 
