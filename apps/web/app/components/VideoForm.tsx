@@ -52,7 +52,7 @@ export function VideoForm({ createVideo }: VideoFormProps) {
         disabled={isLoading || !prompt.trim()}
         className={styles.button}
       >
-        {isLoading ? "Generating..." : "Generate Video"}
+        {isLoading ? "Generating..." : "Generate video"}
       </button>
     </div>
   );

@@ -2,11 +2,18 @@
 
 import useSWR from "swr";
 import styles from "./page.module.css";
+import Link from "next/link";
+import { use } from "react";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export default function JobPage({ params }: { params: { id: string } }) {
-  const { data, error, isLoading } = useSWR(`/api/job/${params.id}`, fetcher, {
+export default function JobPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
+  const { data, error, isLoading } = useSWR(`/api/job/${id}`, fetcher, {
     refreshInterval: 5000, // Refresh every 5 seconds
   });
 
@@ -17,10 +24,26 @@ export default function JobPage({ params }: { params: { id: string } }) {
 
   return (
     <div className={styles.container}>
-      <h1 style={{ fontFamily: "monospace" }}>
-        Status: {data.state} ({data.progress}%)
-      </h1>
-      {data.url ? <video src={data.url} autoPlay loop /> : null}
+      {!data.url && (
+        <h1 style={{ fontFamily: "monospace" }}>
+          Status: {data.state} ({data.progress}%)
+        </h1>
+      )}
+      {data.url ? (
+        <div className={styles.videoContainer}>
+          <video
+            src={data.url}
+            width={300}
+            controls
+            autoPlay
+            loop
+            className={styles.video}
+          />
+          <Link href="/" className={styles.generateAnother}>
+            Generate another video
+          </Link>
+        </div>
+      ) : null}
     </div>
   );
 }

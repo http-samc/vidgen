@@ -6,6 +6,7 @@ import { generateTranscript } from "./utils/generate-transcript";
 import { Worker } from "bullmq";
 import { connection } from "./lib/bullmq";
 import { CreateVideoData } from "./index";
+import { uploadVideoToUploadThing } from "./utils/upload-video";
 
 interface JobProgress {
   state: string;
@@ -67,9 +68,14 @@ export async function createVideo(
     assetLookup: data.characterAssets,
     transcript,
   });
+
+  // Upload the video to UploadThing
+  await updateProgress({ state: "Uploading video...", progress: 90 });
+  const url = await uploadVideoToUploadThing(videoPath, data.id);
+
   await updateProgress({ state: "Video generation complete", progress: 100 });
 
-  return { url: videoPath };
+  return { url };
 }
 
 const worker = new Worker<Omit<CreateVideoData, "id">, { url: string }>(
