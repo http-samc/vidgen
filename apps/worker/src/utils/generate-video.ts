@@ -1,0 +1,76 @@
+import { bundle } from "@remotion/bundler";
+import { renderMedia, selectComposition } from "@remotion/renderer";
+import path from "path";
+
+export type CharacterAssetLookup = Record<string, {
+    path: string;
+    width: number;
+    position: "left" | "right";
+    voice: string;
+  }>;
+
+export interface GenerateVideoData {
+  audioPaths: {
+    path: string;
+    speaker: string;
+  }[];
+  id: string;
+  delay: number;
+  devMode?: boolean;
+  backgroundBlurPx?: number;
+  assetLookup: CharacterAssetLookup;
+  transcript: {
+    words: {
+      text: string;
+      start: number;
+      end: number;
+      type?: string;
+    }[];
+  };
+}
+
+export async function generateVideo(data: GenerateVideoData): Promise<string> {
+  console.log("Generating video");
+
+  // Bundle the Remotion project
+  const bundled = await bundle("./src/remotion/index.ts");
+
+  // Convert all audio paths to be relative to public directory
+  const relativeAudioPaths = data.audioPaths.map((audio) => ({
+    path: `${data.id}/${path.basename(audio.path)}`,
+    speaker: audio.speaker,
+  }));
+
+  // Get the composition configuration
+  const composition = await selectComposition({
+    serveUrl: bundled,
+    id: "Video",
+    inputProps: {
+      audioPaths: relativeAudioPaths,
+      delay: data.delay,
+      transcript: data.transcript,
+      assetLookup: data.assetLookup,
+      devMode: data.devMode,
+      backgroundBlurPx: data.backgroundBlurPx,
+    },
+  });
+
+  // Render the video
+  const outputPath = path.join("out", `${data.id}.mp4`);
+  await renderMedia({
+    codec: "h264",
+    serveUrl: bundled,
+    outputLocation: outputPath,
+    composition,
+    inputProps: {
+      audioPaths: relativeAudioPaths,
+      delay: data.delay,
+      transcript: data.transcript,
+      assetLookup: data.assetLookup,
+      devMode: data.devMode,
+      backgroundBlurPx: data.backgroundBlurPx,
+    },
+  });
+
+  return outputPath;
+}
