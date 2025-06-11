@@ -11,7 +11,7 @@
     "build": "tsc",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "dev": "infisical run -- pnpm tsx src/app.ts",
-    "start": "node dist/app.js",
+    "start": "pnpm tsx src/app.ts",
     "format": "prettier --check . --ignore-path ../../.gitignore",
     "lint": "eslint",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
