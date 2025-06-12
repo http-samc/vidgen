@@ -1,4 +1,8 @@
+import { relations } from "drizzle-orm";
 import { pgTable } from "drizzle-orm/pg-core";
+
+import { key } from "./tables/key";
+import { video } from "./tables/video";
 
 export const user = pgTable("user", (t) => ({
   id: t.text().primaryKey(),
@@ -8,6 +12,11 @@ export const user = pgTable("user", (t) => ({
   image: t.text(),
   createdAt: t.timestamp().notNull(),
   updatedAt: t.timestamp().notNull(),
+}));
+
+export const userRelations = relations(user, ({ many }) => ({
+  videos: many(video),
+  keys: many(key),
 }));
 
 export const session = pgTable("session", (t) => ({
