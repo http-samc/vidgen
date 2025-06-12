@@ -9,6 +9,7 @@ import {
   OffthreadVideo as RemotionVideo,
   Sequence,
   spring,
+  staticFile,
   useCurrentFrame,
 } from "remotion";
 
@@ -143,7 +144,7 @@ export const Video: React.FC<VideoProps> = ({
   useEffect(() => {
     const calculateStartTimes = async () => {
       const audioData = await Promise.all(
-        audioPaths.map((audio) => getAudioData(audio.path)),
+        audioPaths.map((audio) => getAudioData(staticFile(audio.path))),
       );
 
       const times = audioData.reduce<number[]>((acc, _, index) => {
@@ -203,7 +204,7 @@ export const Video: React.FC<VideoProps> = ({
               durationInFrames={durationInFrames}
               premountFor={30}
             >
-              <Audio src={audio.path} />
+              <Audio src={staticFile(audio.path)} />
               {/* @ts-expect-error - characterAsset is not always defined */}
               {<CharacterImage {...characterAsset} />}
             </Sequence>

@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import { cn } from "@acme/ui";
-import { ThemeProvider } from "@acme/ui/theme";
+import { ThemeProvider, ThemeToggle } from "@acme/ui/theme";
 import { Toaster } from "@acme/ui/toast";
 
 import { TRPCReactProvider } from "~/trpc/react";
@@ -14,21 +14,21 @@ import { env } from "~/env";
 export const metadata: Metadata = {
   metadataBase: new URL(
     env.VERCEL_ENV === "production"
-      ? "https://vidgen.smrth.dev"
+      ? "https://turbo.t3.gg"
       : "http://localhost:3000",
   ),
-  title: "VidGen",
-  description: "AI generated short-form videos.",
+  title: "Create T3 Turbo",
+  description: "Simple monorepo with shared backend for web & mobile apps",
   openGraph: {
-    title: "VidGen",
-    description: "AI generated short-form videos.",
-    url: "https://vidgen.smrth.dev",
-    siteName: "VidGen",
+    title: "Create T3 Turbo",
+    description: "Simple monorepo with shared backend for web & mobile apps",
+    url: "https://create-t3-turbo.vercel.app",
+    siteName: "Create T3 Turbo",
   },
   twitter: {
     card: "summary_large_image",
-    site: "@http_samc",
-    creator: "@http_samc",
+    site: "@jullerino",
+    creator: "@jullerino",
   },
 };
 
@@ -60,6 +60,9 @@ export default function RootLayout(props: { children: React.ReactNode }) {
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TRPCReactProvider>{props.children}</TRPCReactProvider>
+          <div className="absolute bottom-4 right-4">
+            <ThemeToggle />
+          </div>
           <Toaster />
         </ThemeProvider>
       </body>

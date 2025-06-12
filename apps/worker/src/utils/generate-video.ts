@@ -7,7 +7,6 @@ import type { CharacterAssetLookup } from "@acme/db/queue";
 export interface GenerateVideoData {
   audioPaths: {
     path: string;
-    url: string;
     speaker: string;
   }[];
   id: string;
@@ -32,9 +31,9 @@ export async function generateVideo(data: GenerateVideoData): Promise<string> {
   // Bundle the Remotion project
   const bundled = await bundle("./src/remotion/index.ts");
 
-  // Use the hosted URLs from UploadThing
-  const audioPaths = data.audioPaths.map((audio) => ({
-    path: audio.url,
+  // Convert all audio paths to be relative to public directory
+  const relativeAudioPaths = data.audioPaths.map((audio) => ({
+    path: `${data.id}/${path.basename(audio.path)}`,
     speaker: audio.speaker,
   }));
 
@@ -43,7 +42,7 @@ export async function generateVideo(data: GenerateVideoData): Promise<string> {
     serveUrl: bundled,
     id: "Video",
     inputProps: {
-      audioPaths,
+      audioPaths: relativeAudioPaths,
       delay: data.delay,
       transcript: data.transcript,
       assetLookup: data.assetLookup,
@@ -61,7 +60,7 @@ export async function generateVideo(data: GenerateVideoData): Promise<string> {
     outputLocation: outputPath,
     composition,
     inputProps: {
-      audioPaths,
+      audioPaths: relativeAudioPaths,
       delay: data.delay,
       transcript: data.transcript,
       assetLookup: data.assetLookup,

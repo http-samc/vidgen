@@ -1,47 +1,15 @@
-import { createWriteStream, existsSync, mkdirSync } from "fs";
-import { readFile } from "fs/promises";
-import { join } from "path";
-import { pipeline } from "stream/promises";
-import { UTApi } from "uploadthing/server";
-
-import type { ScriptLine } from "./generate-script";
-import elevenLabs from "../lib/elevenlabs";
+import type { ScriptLine} from "./generate-script";
 import { ScriptLineSchema } from "./generate-script";
-
-const utapi = new UTApi();
-
-async function uploadAudioToUploadThing(
-  audioPath: string,
-  id: string,
-  index: number,
-  speaker: string,
-) {
-  const fileBuffer = await readFile(audioPath);
-  const file = new File([fileBuffer], `${id}_${index}_${speaker}.mp3`, {
-    type: "audio/mpeg",
-  });
-  const uploadedFile = await utapi.uploadFiles(file);
-
-  if (!uploadedFile.data) {
-    throw new Error("Failed to upload audio to UploadThing");
-  }
-
-  return uploadedFile.data.ufsUrl;
-}
-
-export interface AudioWithSpeaker {
-  path: string;
-  url: string;
-  speaker: string;
-}
+import elevenLabs from "../lib/elevenlabs";
+import { join } from "path";
+import { createWriteStream, existsSync, mkdirSync } from "fs";
+import { pipeline } from "stream/promises";
 
 export async function generateSpeech(
   scriptLine: ScriptLine,
   outputPath: string,
-  voiceIdLookup: Record<string, string>,
-  id: string,
-  index: number,
-): Promise<AudioWithSpeaker> {
+  voiceIdLookup: Record<string, string>
+): Promise<{ path: string; speaker: string }> {
   // Validate the script line
   const validatedLine = ScriptLineSchema.parse(scriptLine);
 
@@ -68,25 +36,21 @@ export async function generateSpeech(
   const writeStream = createWriteStream(outputPath);
   await pipeline(audio, writeStream);
 
-  // Upload to UploadThing
-  const url = await uploadAudioToUploadThing(
-    outputPath,
-    id,
-    index,
-    validatedLine.speaker,
-  );
-
   return {
     path: outputPath,
-    url,
     speaker: validatedLine.speaker,
   };
+}
+
+interface AudioWithSpeaker {
+  path: string;
+  speaker: string;
 }
 
 export async function generateSpeechForScript(
   script: ScriptLine[],
   id: string,
-  voiceIdLookup: Record<string, string>,
+  voiceIdLookup: Record<string, string>
 ): Promise<AudioWithSpeaker[]> {
   const tempDir = join(process.cwd(), "public", id);
 
@@ -101,20 +65,14 @@ export async function generateSpeechForScript(
       const outputPath = join(tempDir, `${index}_${line.speaker}.mp3`);
       if (existsSync(outputPath)) {
         console.log("Found cached speech for", index, line.speaker);
-        return uploadAudioToUploadThing(
-          outputPath,
-          id,
-          index,
-          line.speaker,
-        ).then((url) => ({
+        return {
           path: outputPath,
-          url,
           speaker: line.speaker,
-        }));
+        };
       }
       console.info("Generating speech for", line.speaker, index);
-      return generateSpeech(line, outputPath, voiceIdLookup, id, index);
-    }),
+      return generateSpeech(line, outputPath, voiceIdLookup);
+    })
   );
 
   if (!audioPaths.length) {
