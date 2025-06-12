@@ -5,6 +5,8 @@ import { join } from "path";
 import { Worker } from "bullmq";
 
 import type { CreateVideoData, QueueData, QueueResult } from "@acme/db/queue";
+import { db } from "@acme/db/client";
+import { video } from "@acme/db/schema";
 
 import { connection } from "./lib/bullmq";
 import { generateScript } from "./utils/generate-script";
@@ -62,6 +64,7 @@ export async function createVideo(
           : 12,
     assetLookup: data.characterAssets,
     transcript,
+    backgroundVideo: data.backgroundVideo,
   });
 
   // Upload the video to UploadThing
@@ -80,6 +83,14 @@ export async function createVideo(
       force: true,
     }),
   ]);
+
+  await db.insert(video).values({
+    id: data.id,
+    url,
+    title,
+    description,
+    userId: data.userId,
+  });
 
   await updateProgress({ state: "Video generation complete", progress: 100 });
 

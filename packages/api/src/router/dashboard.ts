@@ -6,7 +6,7 @@ import { z } from "zod/v4";
 import { eq } from "@acme/db";
 import { db } from "@acme/db/client";
 import { queue } from "@acme/db/queue";
-import { video } from "@acme/db/schema";
+import { preset, video } from "@acme/db/schema";
 
 import { protectedProcedure } from "../trpc";
 
@@ -15,33 +15,44 @@ export const dashboardRouter = {
     .input(
       z.object({
         prompt: z.string(),
-        preset: z.string().optional(),
+        preset: z.string(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const { prompt } = input;
-
-      const job = await queue.add(
-        prompt,
-        {
-          prompt,
-          userId: ctx.session.user.id,
-          characterAssets: {
-            "Peter Griffin": {
-              path: "peter.png",
-              width: 400,
-              position: "left",
-              voice: "tov167aMyQvZpmAokINb",
-            },
-            "Stewie Griffin": {
-              path: "stewie.png",
-              width: 300,
-              position: "right",
-              voice: "gTMcf0Uie51ZnMdkBNYG",
+      const userPreset = await db.query.preset.findFirst({
+        where: eq(preset.name, input.preset),
+        with: {
+          characters: {
+            with: {
+              character: true,
             },
           },
-          delay: 0.5,
-          backgroundBlur: "high",
+        },
+      });
+
+      if (!userPreset) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+
+      const job = await queue.add(
+        input.prompt,
+        {
+          prompt: input.prompt,
+          userId: ctx.session.user.id,
+          characterAssets: Object.fromEntries(
+            userPreset.characters.map(({ character }) => [
+              character.name,
+              {
+                path: character.imageUrl,
+                width: character.width,
+                position: character.position,
+                voice: character.voiceId,
+              },
+            ]),
+          ),
+          delay: userPreset.delay,
+          backgroundBlur: userPreset.backgroundBlur,
+          backgroundVideo: userPreset.backgroundVideo,
         },
         {
           jobId: crypto.randomUUID(),

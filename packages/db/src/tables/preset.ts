@@ -17,6 +17,7 @@ export const preset = pgTable("presets", {
     .notNull()
     .default("high"),
   delay: real("delay").notNull().default(0.5),
+  backgroundVideo: text("background_video").notNull(),
 });
 
 export const presetRelations = relations(preset, ({ many }) => ({

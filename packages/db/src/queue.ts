@@ -8,8 +8,9 @@ export interface CreateVideoData {
   id: string;
   delay: number;
   userId: string;
-  // backgroundVideo: string;
   characterAssets: CharacterAssetLookup;
+  backgroundVideo: string;
+
   devMode?: boolean; // When true, only render first 10 seconds
   backgroundBlur?: "none" | "medium" | "high";
 }

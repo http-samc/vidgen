@@ -79,7 +79,7 @@ const PromptInput = ({ presets }: PromptInputProps) => {
         <Button
           variant="ghost"
           className={cn(
-            "h-fit rounded-full border border-transparent !p-0 text-xl transition hover:opacity-80 enabled:border-primary",
+            "h-fit rounded-full border border-transparent !p-0 text-xl transition enabled:border-white hover:enabled:border-primary",
             isCreating && "cursor-wait",
           )}
           disabled={!prompt || !preset}

@@ -34,6 +34,7 @@ export interface VideoProps {
   assetLookup: CharacterAssetLookup;
   devMode?: boolean;
   backgroundBlurPx?: number;
+  backgroundVideo: string;
   transcript?: {
     words: {
       text: string;
@@ -117,7 +118,7 @@ const CharacterImage: React.FC<CharacterAssetLookup[string]> = ({
       }}
     >
       <Img
-        src={staticFile(path)}
+        src={path}
         style={{
           width: width,
           height: "auto",
@@ -135,6 +136,7 @@ export const Video: React.FC<VideoProps> = ({
   assetLookup,
   transcript,
   backgroundBlurPx = 0,
+  backgroundVideo,
 }) => {
   const [startTimes, setStartTimes] = useState<number[]>([]);
   const [durations, setDurations] = useState<number[]>([]);
@@ -172,7 +174,7 @@ export const Video: React.FC<VideoProps> = ({
     <AbsoluteFill>
       {/* Background Video */}
       <RemotionVideo
-        src={staticFile("gameplay.mp4")}
+        src={backgroundVideo}
         startFrom={startFrom}
         endAt={endAt}
         muted={true}
@@ -182,6 +184,7 @@ export const Video: React.FC<VideoProps> = ({
           objectFit: "cover",
           filter: `blur(${backgroundBlurPx}px)`,
         }}
+        delayRenderTimeoutInMilliseconds={60000}
       />
 
       {/* Audio and Character Sequences */}

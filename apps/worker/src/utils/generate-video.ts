@@ -13,6 +13,7 @@ export interface GenerateVideoData {
   delay: number;
   devMode?: boolean;
   backgroundBlurPx?: number;
+  backgroundVideo: string;
   assetLookup: CharacterAssetLookup;
   transcript: {
     words: {
@@ -47,6 +48,7 @@ export async function generateVideo(data: GenerateVideoData): Promise<string> {
       assetLookup: data.assetLookup,
       devMode: data.devMode,
       backgroundBlurPx: data.backgroundBlurPx,
+      backgroundVideo: data.backgroundVideo,
     },
   });
 
@@ -64,6 +66,7 @@ export async function generateVideo(data: GenerateVideoData): Promise<string> {
       assetLookup: data.assetLookup,
       devMode: data.devMode,
       backgroundBlurPx: data.backgroundBlurPx,
+      backgroundVideo: data.backgroundVideo,
     },
   });
 
