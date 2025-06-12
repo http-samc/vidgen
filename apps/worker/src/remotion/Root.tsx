@@ -1,6 +1,6 @@
 import React from "react";
 import { getAudioData } from "@remotion/media-utils";
-import { Composition, staticFile } from "remotion";
+import { Composition } from "remotion";
 
 import type { VideoProps } from "./Video";
 import { Video } from "./Video";
@@ -39,7 +39,7 @@ export const RemotionRoot: React.FC = () => {
           // Calculate total duration including delays
           const durations = await Promise.all(
             audioPaths.map(async (audio) => {
-              const audioData = await getAudioData(staticFile(audio.path));
+              const audioData = await getAudioData(audio.path);
               return audioData.durationInSeconds;
             }),
           );
