@@ -1,4 +1,4 @@
-import type { CharacterAssetLookup } from "./utils/generate-video";
+import type { CharacterAssetLookup } from "@acme/db/queue";
 
 export interface CreateVideoData {
   prompt: string;

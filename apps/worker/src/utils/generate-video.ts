@@ -1,13 +1,8 @@
+import path from "path";
 import { bundle } from "@remotion/bundler";
 import { renderMedia, selectComposition } from "@remotion/renderer";
-import path from "path";
 
-export type CharacterAssetLookup = Record<string, {
-    path: string;
-    width: number;
-    position: "left" | "right";
-    voice: string;
-  }>;
+import type { CharacterAssetLookup } from "@acme/db/queue";
 
 export interface GenerateVideoData {
   audioPaths: {

@@ -35,11 +35,11 @@ const Navigation = () => {
   const pathname = usePathname();
 
   const getIsActive = (href: string) => {
-    if (pathname === "/dashboard") {
-      return href === "/dashboard";
+    if (href === "/dashboard") {
+      return pathname === "/dashboard";
     }
 
-    return href.startsWith(pathname);
+    return pathname.startsWith(href);
   };
 
   return (

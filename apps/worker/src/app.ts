@@ -1,15 +1,17 @@
 /* eslint-disable turbo/no-undeclared-env-vars */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { generateScript } from "./utils/generate-script";
-import { generateSpeechForScript } from "./utils/generate-speech";
-import { generateVideo } from "./utils/generate-video";
-import { generateTranscript } from "./utils/generate-transcript";
-import { Worker } from "bullmq";
-import { connection } from "./lib/bullmq";
-import type { CreateVideoData } from "./index";
-import { uploadVideoToUploadThing } from "./utils/upload-video";
 import { rm } from "fs/promises";
 import { join } from "path";
+import { Worker } from "bullmq";
+
+import type { CreateVideoData, QueueData, QueueResult } from "@acme/db/queue";
+
+import { connection } from "./lib/bullmq";
+import { generateScript } from "./utils/generate-script";
+import { generateSpeechForScript } from "./utils/generate-speech";
+import { generateTranscript } from "./utils/generate-transcript";
+import { generateVideo } from "./utils/generate-video";
+import { uploadVideoToUploadThing } from "./utils/upload-video";
 
 interface JobProgress {
   state: string;
@@ -18,14 +20,14 @@ interface JobProgress {
 
 export async function createVideo(
   data: CreateVideoData,
-  updateProgress: (progress: JobProgress) => Promise<void>
+  updateProgress: (progress: JobProgress) => Promise<void>,
 ) {
   // Generate the script
-  await updateProgress({ state: "Generating script...", progress: 0 });
-  const script = await generateScript(data);
+  await updateProgress({ state: "Generating script...", progress: 10 });
+  const { lines: script, title, description } = await generateScript(data);
 
   // Generate speech for each line in the script
-  await updateProgress({ state: "Generating speech...", progress: 20 });
+  await updateProgress({ state: "Generating speech...", progress: 30 });
   const audioPaths = await generateSpeechForScript(
     script,
     data.id,
@@ -33,8 +35,8 @@ export async function createVideo(
       Object.entries(data.characterAssets).map(([key, value]) => [
         key,
         value.voice,
-      ])
-    )
+      ]),
+    ),
   );
 
   // Generate master transcript
@@ -81,10 +83,10 @@ export async function createVideo(
 
   await updateProgress({ state: "Video generation complete", progress: 100 });
 
-  return { url };
+  return { url, title, description };
 }
 
-const worker = new Worker<Omit<CreateVideoData, "id">, { url: string }>(
+const worker = new Worker<QueueData, QueueResult>(
   process.env.QUEUE_NAME!,
   async (job) => {
     const updateProgress = async (progress: JobProgress) => {
@@ -97,12 +99,12 @@ const worker = new Worker<Omit<CreateVideoData, "id">, { url: string }>(
 
     return await createVideo(
       { ...job.data, id: job.id ?? job.name },
-      updateProgress
+      updateProgress,
     );
   },
   {
     connection: connection,
-  }
+  },
 );
 
 worker.on("ready", () => {

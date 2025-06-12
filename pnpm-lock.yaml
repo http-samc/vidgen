@@ -163,6 +163,9 @@ importers:
 
   apps/worker:
     dependencies:
+      '@acme/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       '@ai-sdk/anthropic':
         specifier: 2.0.0-alpha.11
         version: 2.0.0-alpha.11(zod@3.25.62)

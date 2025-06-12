@@ -27,6 +27,8 @@ export type CharacterAssetLookup = Record<
 export type QueueData = Omit<CreateVideoData, "id">;
 export interface QueueResult {
   url: string;
+  title: string;
+  description: string;
 }
 
 export const connection = new IoRedis(`${process.env.REDIS_URL}`, {

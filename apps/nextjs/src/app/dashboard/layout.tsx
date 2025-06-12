@@ -19,7 +19,7 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
   return (
     <main className="min-h-screen w-full lg:p-12">
       <div className="mx-auto w-full max-w-4xl space-y-6 p-4 lg:p-12">
-        <div className="w-full space-y-2 border-b border-dashed pb-4">
+        <div className="w-full space-y-2 border-b pb-4">
           <div className="flex w-full items-center justify-between">
             <h3 className="text-2xl font-bold">VidGen</h3>
             <Link href="/dashboard/settings">

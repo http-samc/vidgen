@@ -26,6 +26,7 @@
     "typescript": "5.8.2"
   },
   "dependencies": {
+    "@acme/db": "workspace:*",
     "@ai-sdk/anthropic": "2.0.0-alpha.11",
     "@ai-sdk/elevenlabs": "1.0.0-alpha.11",
     "@elevenlabs/client": "^0.1.7",

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 "use client";
 
 import React, { useState } from "react";
@@ -23,7 +22,7 @@ const PromptInput = () => {
   const router = useRouter();
 
   const [prompt, setPrompt] = useState("");
-  const [preset, setPreset] = useState<string | null>(null);
+  const [preset, setPreset] = useState<string>("family-guy");
   const { mutateAsync: createVideo } = useMutation(
     trpc.dashboard.createVideo.mutationOptions(),
   );
@@ -38,7 +37,7 @@ const PromptInput = () => {
         rows={3}
       />
       <div className="flex items-center justify-between">
-        <Select value={preset ?? undefined} onValueChange={setPreset}>
+        <Select value={preset} onValueChange={setPreset}>
           <SelectTrigger className="w-fit gap-2 border-none !text-sm focus:ring-0 focus-visible:ring-0">
             <SelectValue placeholder="Preset" />
           </SelectTrigger>
@@ -51,7 +50,7 @@ const PromptInput = () => {
           className="h-fit rounded-full !p-0 text-xl transition-colors hover:text-primary"
           disabled={!prompt || !preset}
           onClick={() =>
-            void createVideo({ prompt, preset: preset! }).then((result) => {
+            void createVideo({ prompt, preset: preset }).then((result) => {
               if (result.jobId) {
                 router.push(`/dashboard/videos/${result.jobId}`);
               }
