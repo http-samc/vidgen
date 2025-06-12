@@ -51,9 +51,6 @@ export async function generateVideo(data: GenerateVideoData): Promise<string> {
       backgroundBlurPx: data.backgroundBlurPx,
       backgroundVideo: data.backgroundVideo,
     },
-    chromiumOptions: {
-      disableWebSecurity: true,
-    },
   });
 
   // Render the video
@@ -71,9 +68,6 @@ export async function generateVideo(data: GenerateVideoData): Promise<string> {
       devMode: data.devMode,
       backgroundBlurPx: data.backgroundBlurPx,
       backgroundVideo: data.backgroundVideo,
-    },
-    chromiumOptions: {
-      disableWebSecurity: true,
     },
   });
 
