@@ -53,6 +53,7 @@ export const dashboardRouter = {
           delay: userPreset.delay,
           backgroundBlur: userPreset.backgroundBlur,
           backgroundVideo: userPreset.backgroundVideo,
+          presetId: userPreset.id,
         },
         {
           jobId: crypto.randomUUID(),
@@ -90,6 +91,8 @@ export const dashboardRouter = {
           url: null,
           title: null,
           description: null,
+          createdAt: null,
+          preset: null,
         };
       }
 
@@ -98,6 +101,9 @@ export const dashboardRouter = {
       if (isCompleted) {
         const completedVideo = await db.query.video.findFirst({
           where: eq(video.id, jobId),
+          with: {
+            preset: true,
+          },
         });
 
         return {
@@ -107,6 +113,8 @@ export const dashboardRouter = {
           url: completedVideo?.url,
           title: completedVideo?.title,
           description: completedVideo?.description,
+          createdAt: completedVideo?.createdAt,
+          preset: completedVideo?.preset?.name,
         };
       }
 
@@ -117,6 +125,8 @@ export const dashboardRouter = {
         url: job.returnvalue?.url,
         title: job.returnvalue?.title,
         description: job.returnvalue?.description,
+        createdAt: null,
+        preset: null,
       };
     }),
   getVideos: protectedProcedure.query(async ({ ctx }) => {

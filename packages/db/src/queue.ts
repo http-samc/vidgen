@@ -5,6 +5,7 @@ import IoRedis from "ioredis";
 
 export interface CreateVideoData {
   prompt: string;
+  presetId: number;
   id: string;
   delay: number;
   userId: string;

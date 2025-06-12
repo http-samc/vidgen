@@ -1,9 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import { FaArrowLeft, FaClockRotateLeft } from "react-icons/fa6";
 
+import { getRelativeTime } from "~/lib/getRelativeTime";
 import { useTRPC } from "~/trpc/react";
 
 const JobPage = () => {
@@ -39,12 +42,44 @@ const JobPage = () => {
   }
 
   return (
-    <div className="mx-auto max-w-sm space-y-4 p-4">
+    <div className="space-y-4">
       <div className="space-y-2">
-        <h3 className="text-2xl font-bold">{job.title}</h3>
-        <p className="text-sm text-muted-foreground">{job.description}</p>
+        <Link
+          href="/dashboard/videos"
+          className="group flex items-center space-x-1 text-xs text-muted-foreground"
+        >
+          <FaArrowLeft
+            className="transition-transform group-hover:-translate-x-px"
+            size={10}
+          />
+          <span>Back</span>
+        </Link>
+        <div className="flex items-center justify-between">
+          <h3 className="max-w-lg text-3xl font-bold">{job.title}</h3>
+          <p className="w-fit whitespace-nowrap rounded-full bg-muted px-2 py-0.5 font-mono text-sm">
+            {job.preset}
+          </p>
+        </div>
+        <p className="max-w-lg text-sm text-muted-foreground">
+          {job.description}
+        </p>
       </div>
-      <video src={job.url} width={300} controls autoPlay loop />
+      <div className="flex w-full items-center justify-between">
+        {job.createdAt && (
+          <div className="flex items-center space-x-1 text-xs text-muted-foreground">
+            <FaClockRotateLeft size={10} />
+            <p>{getRelativeTime(job.createdAt)}</p>
+          </div>
+        )}
+      </div>
+      <video
+        src={job.url}
+        className="mx-auto"
+        width={300}
+        controls
+        autoPlay
+        loop
+      />
     </div>
   );
 };

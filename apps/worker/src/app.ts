@@ -90,6 +90,7 @@ export async function createVideo(
     title,
     description,
     userId: data.userId,
+    presetId: data.presetId,
   });
 
   await updateProgress({ state: "Video generation complete", progress: 100 });

@@ -21,7 +21,9 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
       <div className="mx-auto w-full max-w-4xl space-y-6 p-4 lg:p-12">
         <div className="w-full space-y-2 border-b pb-4">
           <div className="flex w-full items-center justify-between">
-            <h3 className="text-2xl font-bold">VidGen</h3>
+            <h3 className="font-mono text-2xl font-bold tracking-wider">
+              VidGen
+            </h3>
             <Link href="/dashboard/settings">
               <Image
                 src={`${session.user.image}`}

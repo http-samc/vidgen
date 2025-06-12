@@ -49,7 +49,7 @@ const Navigation = () => {
           href={link.href}
           key={link.href}
           className={cn(
-            "relative flex items-center gap-2 text-sm font-medium transition-colors",
+            "relative flex items-center gap-2 pb-0.5 text-sm font-medium transition-colors",
             getIsActive(link.href) ? "text-primary" : "text-muted-foreground",
           )}
         >
