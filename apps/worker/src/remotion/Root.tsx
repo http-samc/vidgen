@@ -1,8 +1,9 @@
 import React from "react";
-import { Composition } from "remotion";
-import { Video, VideoProps } from "./Video";
 import { getAudioData } from "@remotion/media-utils";
-import { staticFile } from "remotion";
+import { Composition, staticFile } from "remotion";
+
+import type { VideoProps } from "./Video";
+import { Video } from "./Video";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -40,7 +41,7 @@ export const RemotionRoot: React.FC = () => {
             audioPaths.map(async (audio) => {
               const audioData = await getAudioData(staticFile(audio.path));
               return audioData.durationInSeconds;
-            })
+            }),
           );
 
           const totalDuration =

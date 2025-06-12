@@ -1,28 +1,32 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+
 import React, { useEffect, useState } from "react";
+import { getAudioData } from "@remotion/media-utils";
 import {
   AbsoluteFill,
   Audio,
-  Sequence,
-  staticFile,
+  Img,
   OffthreadVideo as RemotionVideo,
+  Sequence,
   spring,
+  staticFile,
   useCurrentFrame,
 } from "remotion";
-import { getAudioData } from "@remotion/media-utils";
 
 interface AudioPath {
   path: string;
   speaker: string;
 }
 
-interface CharacterAssetLookup {
-  [speaker: string]: {
+type CharacterAssetLookup = Record<
+  string,
+  {
     path: string;
     width: number;
     position: "left" | "right";
     voice: string;
-  };
-}
+  }
+>;
 
 export interface VideoProps {
   audioPaths: AudioPath[];
@@ -30,12 +34,13 @@ export interface VideoProps {
   assetLookup: CharacterAssetLookup;
   devMode?: boolean;
   backgroundBlurPx?: number;
+  backgroundVideo: string;
   transcript?: {
-    words: Array<{
+    words: {
       text: string;
       start: number;
       end: number;
-    }>;
+    }[];
   };
 }
 
@@ -112,8 +117,8 @@ const CharacterImage: React.FC<CharacterAssetLookup[string]> = ({
         alignItems: "center",
       }}
     >
-      <img
-        src={staticFile(path)}
+      <Img
+        src={path}
         style={{
           width: width,
           height: "auto",
@@ -131,6 +136,7 @@ export const Video: React.FC<VideoProps> = ({
   assetLookup,
   transcript,
   backgroundBlurPx = 0,
+  backgroundVideo,
 }) => {
   const [startTimes, setStartTimes] = useState<number[]>([]);
   const [durations, setDurations] = useState<number[]>([]);
@@ -138,7 +144,7 @@ export const Video: React.FC<VideoProps> = ({
   useEffect(() => {
     const calculateStartTimes = async () => {
       const audioData = await Promise.all(
-        audioPaths.map((audio) => getAudioData(staticFile(audio.path)))
+        audioPaths.map((audio) => getAudioData(staticFile(audio.path))),
       );
 
       const times = audioData.reduce<number[]>((acc, _, index) => {
@@ -151,13 +157,13 @@ export const Video: React.FC<VideoProps> = ({
       setDurations(audioData.map((data) => data.durationInSeconds));
     };
 
-    calculateStartTimes();
+    void calculateStartTimes();
   }, [audioPaths, delay]);
 
   // Calculate total duration for the background video
-  const lastStartTime = startTimes[startTimes.length - 1];
+  const lastStartTime = startTimes[startTimes.length - 1]!;
   const totalDuration =
-    startTimes.length > 0 && lastStartTime !== undefined
+    startTimes.length > 0
       ? lastStartTime + (audioPaths.length > 0 ? 5 : 0) // Add 2 second buffer
       : 0;
 
@@ -168,7 +174,7 @@ export const Video: React.FC<VideoProps> = ({
     <AbsoluteFill>
       {/* Background Video */}
       <RemotionVideo
-        src={staticFile("gameplay.mp4")}
+        src={backgroundVideo}
         startFrom={startFrom}
         endAt={endAt}
         muted={true}
@@ -178,6 +184,7 @@ export const Video: React.FC<VideoProps> = ({
           objectFit: "cover",
           filter: `blur(${backgroundBlurPx}px)`,
         }}
+        delayRenderTimeoutInMilliseconds={60000}
       />
 
       {/* Audio and Character Sequences */}
@@ -186,18 +193,22 @@ export const Video: React.FC<VideoProps> = ({
         const startFrame = Math.floor((startTimes[index] ?? 0) * 30); // Convert to frames (30fps)
         const durationInFrames = Math.max(
           1,
-          Math.ceil((durations[index] ?? 0) * 30)
+          Math.ceil((durations[index] ?? 0) * 30),
         ); // Ensure minimum duration of 1 frame
 
         return (
-          <Sequence
-            key={audio.path}
-            from={startFrame}
-            durationInFrames={durationInFrames}
-          >
-            <Audio src={staticFile(audio.path)} />
-            {characterAsset && <CharacterImage {...characterAsset} />}
-          </Sequence>
+          <>
+            <Sequence
+              key={audio.path}
+              from={startFrame}
+              durationInFrames={durationInFrames}
+              premountFor={30}
+            >
+              <Audio src={staticFile(audio.path)} />
+              {/* @ts-expect-error - characterAsset is not always defined */}
+              {<CharacterImage {...characterAsset} />}
+            </Sequence>
+          </>
         );
       })}
 

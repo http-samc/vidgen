@@ -1,5 +1,5 @@
-import { Readable } from "stream";
-import { ScriptLine, ScriptLineSchema } from "./generate-script";
+import type { ScriptLine} from "./generate-script";
+import { ScriptLineSchema } from "./generate-script";
 import elevenLabs from "../lib/elevenlabs";
 import { join } from "path";
 import { createWriteStream, existsSync, mkdirSync } from "fs";
@@ -14,7 +14,11 @@ export async function generateSpeech(
   const validatedLine = ScriptLineSchema.parse(scriptLine);
 
   // Get the voice ID for the speaker
-  const voiceId = voiceIdLookup[validatedLine.speaker]!;
+  const voiceId = voiceIdLookup[validatedLine.speaker];
+
+  if (!voiceId) {
+    throw new Error(`Voice ID not found for speaker: ${validatedLine.speaker}`);
+  }
 
   // Generate speech using ElevenLabs
   const audio = await elevenLabs.textToSpeech.convert(voiceId, {

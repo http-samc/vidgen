@@ -1,4 +1,5 @@
-import {
+ 
+import type {
   SpeechToTextChunkResponseModel,
   SpeechToTextWordResponseModel,
 } from "@elevenlabs/elevenlabs-js/api";
@@ -54,10 +55,7 @@ export async function generateTranscript({
   const mergedWords: SpeechToTextWordResponseModel[] = [];
 
   // Merge transcripts and adjust timestamps
-  for (let i = 0; i < transcripts.length; i++) {
-    const transcript = transcripts[i];
-    if (!transcript) continue;
-
+  for (const transcript of transcripts) {
     // Adjust timestamps for each word in the current transcript
     const adjustedWords = transcript.words.map((word) => ({
       ...word,
@@ -83,13 +81,16 @@ export async function generateTranscript({
   }[] = [];
   for (
     let i = 0;
-    i < Math.ceil(mergedWords[mergedWords.length - 1]!.end! / windowSize);
+    i <
+      Math.ceil(
+        (mergedWords[mergedWords.length - 1]?.end ?? 0) / windowSize
+      );
     i++
   ) {
     const windowStart = i * windowSize;
     const windowEnd = windowStart + windowSize;
     const windowWords = mergedWords.filter(
-      (word) => word.start! >= windowStart && word.start! < windowEnd
+      (word) => word.start && word.start >= windowStart && word.start < windowEnd
     );
     const windowText = windowWords
       .map((word) => word.text.trim())

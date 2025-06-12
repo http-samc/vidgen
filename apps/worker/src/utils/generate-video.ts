@@ -1,33 +1,27 @@
+import path from "path";
 import { bundle } from "@remotion/bundler";
 import { renderMedia, selectComposition } from "@remotion/renderer";
-import path from "path";
 
-export interface CharacterAssetLookup {
-  [speaker: string]: {
-    path: string;
-    width: number;
-    position: "left" | "right";
-    voice: string;
-  };
-}
+import type { CharacterAssetLookup } from "@acme/db/queue";
 
 export interface GenerateVideoData {
-  audioPaths: Array<{
+  audioPaths: {
     path: string;
     speaker: string;
-  }>;
+  }[];
   id: string;
   delay: number;
   devMode?: boolean;
   backgroundBlurPx?: number;
+  backgroundVideo: string;
   assetLookup: CharacterAssetLookup;
   transcript: {
-    words: Array<{
+    words: {
       text: string;
       start: number;
       end: number;
       type?: string;
-    }>;
+    }[];
   };
 }
 
@@ -54,6 +48,7 @@ export async function generateVideo(data: GenerateVideoData): Promise<string> {
       assetLookup: data.assetLookup,
       devMode: data.devMode,
       backgroundBlurPx: data.backgroundBlurPx,
+      backgroundVideo: data.backgroundVideo,
     },
   });
 
@@ -71,6 +66,7 @@ export async function generateVideo(data: GenerateVideoData): Promise<string> {
       assetLookup: data.assetLookup,
       devMode: data.devMode,
       backgroundBlurPx: data.backgroundBlurPx,
+      backgroundVideo: data.backgroundVideo,
     },
   });
 

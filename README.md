@@ -1,13 +1,16 @@
-# VidGen
+# TODO:
 
-## Parameterization Requirements
+- Create Hono API
+  Allow either uuid for auth OR api key
 
-Preset = Character[] & Gameplay
+Preset = Character[] & backgroundVideo (url) & backgroundBlur & delay (table)
 
-Characters: (img, name, voiceId, position = "left" | "right", width, role = "teacher" | "student")
-Gameplay: URL
+Character: (img, name, voiceId, position = "left" | "right", width, role = "teacher" | "student")
 
-Prompt: string
-
-delay?: number = 0.5
-backgroundBlur: "none" = 0 | "medium" = 6 | "large" = 12
+- /jobs :POST
+  - PresetId/Name, Prompt (string)
+- /jobs/:uuid
+  - Progress
+  - Status
+  - Name?
+  - URL
