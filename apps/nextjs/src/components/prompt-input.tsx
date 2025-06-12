@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 "use client";
 
 import React, { useState } from "react";
@@ -18,12 +19,16 @@ import { Textarea } from "@acme/ui/textarea";
 
 import { useTRPC } from "~/trpc/react";
 
-const PromptInput = () => {
+interface PromptInputProps {
+  presets: { id: number; value: string }[];
+}
+
+const PromptInput = ({ presets }: PromptInputProps) => {
   const trpc = useTRPC();
   const router = useRouter();
 
   const [prompt, setPrompt] = useState("");
-  const [preset, setPreset] = useState<string>("family-guy");
+  const [preset, setPreset] = useState<string>(presets[0]!.value);
   const { mutateAsync: createVideo, isPending: isCreating } = useMutation(
     trpc.dashboard.createVideo.mutationOptions(),
   );
@@ -64,7 +69,11 @@ const PromptInput = () => {
             <SelectValue placeholder="Preset" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="family-guy">Family Guy</SelectItem>
+            {presets.map((preset) => (
+              <SelectItem key={preset.id} value={preset.value}>
+                {preset.value}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <Button

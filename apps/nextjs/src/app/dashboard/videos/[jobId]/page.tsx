@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 
@@ -9,13 +9,20 @@ import { useTRPC } from "~/trpc/react";
 const JobPage = () => {
   const trpc = useTRPC();
   const { jobId } = useParams();
+  const [jobIsCompleted, setJobIsCompleted] = useState(false);
 
   const { data: job } = useQuery(
     trpc.dashboard.getVideo.queryOptions(
       { jobId: jobId as string },
-      { enabled: !!jobId, refetchInterval: 2500 },
+      { enabled: !!jobId && !jobIsCompleted, refetchInterval: 2500 },
     ),
   );
+
+  useEffect(() => {
+    if (job?.state === "Completed") {
+      setJobIsCompleted(true);
+    }
+  }, [job?.state]);
 
   if (!job) {
     return <div className="w-full animate-pulse rounded-lg bg-card"></div>;
