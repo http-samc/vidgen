@@ -1,28 +1,32 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
- 
+
 import React, { useEffect, useState } from "react";
+import { getAudioData } from "@remotion/media-utils";
 import {
   AbsoluteFill,
   Audio,
-  Sequence,
-  staticFile,
+  Img,
   OffthreadVideo as RemotionVideo,
+  Sequence,
   spring,
+  staticFile,
   useCurrentFrame,
 } from "remotion";
-import { getAudioData } from "@remotion/media-utils";
 
 interface AudioPath {
   path: string;
   speaker: string;
 }
 
-type CharacterAssetLookup = Record<string, {
+type CharacterAssetLookup = Record<
+  string,
+  {
     path: string;
     width: number;
     position: "left" | "right";
     voice: string;
-  }>;
+  }
+>;
 
 export interface VideoProps {
   audioPaths: AudioPath[];
@@ -112,7 +116,7 @@ const CharacterImage: React.FC<CharacterAssetLookup[string]> = ({
         alignItems: "center",
       }}
     >
-      <img
+      <Img
         src={staticFile(path)}
         style={{
           width: width,
@@ -138,7 +142,7 @@ export const Video: React.FC<VideoProps> = ({
   useEffect(() => {
     const calculateStartTimes = async () => {
       const audioData = await Promise.all(
-        audioPaths.map((audio) => getAudioData(staticFile(audio.path)))
+        audioPaths.map((audio) => getAudioData(staticFile(audio.path))),
       );
 
       const times = audioData.reduce<number[]>((acc, _, index) => {
@@ -186,19 +190,22 @@ export const Video: React.FC<VideoProps> = ({
         const startFrame = Math.floor((startTimes[index] ?? 0) * 30); // Convert to frames (30fps)
         const durationInFrames = Math.max(
           1,
-          Math.ceil((durations[index] ?? 0) * 30)
+          Math.ceil((durations[index] ?? 0) * 30),
         ); // Ensure minimum duration of 1 frame
 
         return (
-          <Sequence
-            key={audio.path}
-            from={startFrame}
-            durationInFrames={durationInFrames}
-          >
-            <Audio src={staticFile(audio.path)} />
-            {/* @ts-expect-error - characterAsset is not always defined */}
-            {<CharacterImage {...characterAsset} />}
-          </Sequence>
+          <>
+            <Sequence
+              key={audio.path}
+              from={startFrame}
+              durationInFrames={durationInFrames}
+              premountFor={30}
+            >
+              <Audio src={staticFile(audio.path)} />
+              {/* @ts-expect-error - characterAsset is not always defined */}
+              {<CharacterImage {...characterAsset} />}
+            </Sequence>
+          </>
         );
       })}
 
