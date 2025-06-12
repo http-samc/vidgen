@@ -142,28 +142,35 @@ export const Video: React.FC<VideoProps> = ({
   const [durations, setDurations] = useState<number[]>([]);
 
   useEffect(() => {
+    console.log(
+      "=== Video component useEffect triggered with",
+      audioPaths.length,
+      "audio paths",
+    );
+    console.log("=== Audio paths:", audioPaths);
+
     const calculateStartTimes = async () => {
       try {
+        console.log("=== Starting calculateStartTimes in Video component");
         const audioData = await Promise.all(
-          audioPaths.map(async (audio) => {
+          audioPaths.map(async (audio, index) => {
             console.log(
-              "Video component: Attempting to get audio data for:",
+              `=== Video: Processing audio ${index + 1}/${audioPaths.length}:`,
               audio.path,
             );
             try {
               const data = await getAudioData(staticFile(audio.path));
               console.log(
-                "Video component: Successfully got audio data for:",
-                audio.path,
-                "duration:",
-                data.durationInSeconds,
+                `=== Video: Successfully got audio data for ${audio.path}: duration=${data.durationInSeconds}s`,
               );
               return data;
             } catch (error) {
               console.error(
-                "Video component: Failed to get audio data for:",
-                audio.path,
+                `=== Video: Failed to get audio data for ${audio.path}:`,
                 error,
+              );
+              console.log(
+                `=== Video: Using fallback duration for ${audio.path}`,
               );
               // Return a mock audio data object if getAudioData fails
               return {
@@ -175,16 +182,26 @@ export const Video: React.FC<VideoProps> = ({
           }),
         );
 
+        console.log(
+          "=== Video: All audio data collected:",
+          audioData.map((d) => ({ duration: d.durationInSeconds })),
+        );
+
         const times = audioData.reduce<number[]>((acc, _, index) => {
           const previousStart = acc[index - 1] ?? 0;
           const previousDuration = audioData[index - 1]?.durationInSeconds ?? 0;
           return [...acc, previousStart + previousDuration + delay];
         }, []);
 
+        console.log("=== Video: Calculated start times:", times);
+        const durations = audioData.map((data) => data.durationInSeconds);
+        console.log("=== Video: Calculated durations:", durations);
+
         setStartTimes(times);
-        setDurations(audioData.map((data) => data.durationInSeconds));
+        setDurations(durations);
+        console.log("=== Video: State updated successfully");
       } catch (error) {
-        console.error("Video component: Error in calculateStartTimes:", error);
+        console.error("=== Video: Error in calculateStartTimes:", error);
         // Set default values if everything fails
         const defaultDurations = audioPaths.map(() => 5); // 5 seconds each
         const defaultTimes = defaultDurations.reduce<number[]>(
@@ -195,6 +212,9 @@ export const Video: React.FC<VideoProps> = ({
           },
           [],
         );
+
+        console.log("=== Video: Using fallback times:", defaultTimes);
+        console.log("=== Video: Using fallback durations:", defaultDurations);
 
         setStartTimes(defaultTimes);
         setDurations(defaultDurations);
