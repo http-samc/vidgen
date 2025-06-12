@@ -143,18 +143,62 @@ export const Video: React.FC<VideoProps> = ({
 
   useEffect(() => {
     const calculateStartTimes = async () => {
-      const audioData = await Promise.all(
-        audioPaths.map((audio) => getAudioData(staticFile(audio.path))),
-      );
+      try {
+        const audioData = await Promise.all(
+          audioPaths.map(async (audio) => {
+            console.log(
+              "Video component: Attempting to get audio data for:",
+              audio.path,
+            );
+            try {
+              const data = await getAudioData(staticFile(audio.path));
+              console.log(
+                "Video component: Successfully got audio data for:",
+                audio.path,
+                "duration:",
+                data.durationInSeconds,
+              );
+              return data;
+            } catch (error) {
+              console.error(
+                "Video component: Failed to get audio data for:",
+                audio.path,
+                error,
+              );
+              // Return a mock audio data object if getAudioData fails
+              return {
+                durationInSeconds: 5, // Default 5 seconds
+                sampleRate: 44100,
+                numberOfChannels: 2,
+              };
+            }
+          }),
+        );
 
-      const times = audioData.reduce<number[]>((acc, _, index) => {
-        const previousStart = acc[index - 1] ?? 0;
-        const previousDuration = audioData[index - 1]?.durationInSeconds ?? 0;
-        return [...acc, previousStart + previousDuration + delay];
-      }, []);
+        const times = audioData.reduce<number[]>((acc, _, index) => {
+          const previousStart = acc[index - 1] ?? 0;
+          const previousDuration = audioData[index - 1]?.durationInSeconds ?? 0;
+          return [...acc, previousStart + previousDuration + delay];
+        }, []);
 
-      setStartTimes(times);
-      setDurations(audioData.map((data) => data.durationInSeconds));
+        setStartTimes(times);
+        setDurations(audioData.map((data) => data.durationInSeconds));
+      } catch (error) {
+        console.error("Video component: Error in calculateStartTimes:", error);
+        // Set default values if everything fails
+        const defaultDurations = audioPaths.map(() => 5); // 5 seconds each
+        const defaultTimes = defaultDurations.reduce<number[]>(
+          (acc, _, index) => {
+            const previousStart = acc[index - 1] ?? 0;
+            const previousDuration = defaultDurations[index - 1] ?? 0;
+            return [...acc, previousStart + previousDuration + delay];
+          },
+          [],
+        );
+
+        setStartTimes(defaultTimes);
+        setDurations(defaultDurations);
+      }
     };
 
     void calculateStartTimes();

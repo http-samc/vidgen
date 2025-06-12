@@ -36,24 +36,47 @@ export const RemotionRoot: React.FC = () => {
             return { durationInFrames: 300 }; // 10 seconds at 30fps
           }
 
-          // Calculate total duration including delays
-          const durations = await Promise.all(
-            audioPaths.map(async (audio) => {
-              const audioData = await getAudioData(staticFile(audio.path));
-              return audioData.durationInSeconds;
-            }),
-          );
+          try {
+            // Calculate total duration including delays
+            const durations = await Promise.all(
+              audioPaths.map(async (audio) => {
+                console.log("Attempting to get audio data for:", audio.path);
+                try {
+                  const audioData = await getAudioData(staticFile(audio.path));
+                  console.log(
+                    "Successfully got audio data for:",
+                    audio.path,
+                    "duration:",
+                    audioData.durationInSeconds,
+                  );
+                  return audioData.durationInSeconds;
+                } catch (error) {
+                  console.error(
+                    "Failed to get audio data for:",
+                    audio.path,
+                    error,
+                  );
+                  // Return a default duration if audio data fails
+                  return 5; // 5 seconds default
+                }
+              }),
+            );
 
-          const totalDuration =
-            durations.reduce((acc, duration, index) => {
-              return (
-                acc + duration + (index < durations.length - 1 ? delay : 0)
-              );
-            }, 0) + 2; // Add 2 second buffer
+            const totalDuration =
+              durations.reduce((acc, duration, index) => {
+                return (
+                  acc + duration + (index < durations.length - 1 ? delay : 0)
+                );
+              }, 0) + 2; // Add 2 second buffer
 
-          return {
-            durationInFrames: Math.ceil(totalDuration * 30), // Convert to frames at 30fps
-          };
+            return {
+              durationInFrames: Math.ceil(totalDuration * 30), // Convert to frames at 30fps
+            };
+          } catch (error) {
+            console.error("Error in calculateMetadata:", error);
+            // Return default duration if everything fails
+            return { durationInFrames: 300 };
+          }
         }}
       />
     </>

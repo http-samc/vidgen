@@ -27,6 +27,8 @@ export interface GenerateVideoData {
 
 export async function generateVideo(data: GenerateVideoData): Promise<string> {
   console.log("Generating video");
+  console.log("Environment:", process.env.NODE_ENV);
+  console.log("Audio paths:", data.audioPaths);
 
   // Bundle the Remotion project
   const bundled = await bundle("./src/remotion/index.ts");
@@ -36,6 +38,8 @@ export async function generateVideo(data: GenerateVideoData): Promise<string> {
     path: `${data.id}/${path.basename(audio.path)}`,
     speaker: audio.speaker,
   }));
+
+  console.log("Relative audio paths:", relativeAudioPaths);
 
   // Get the composition configuration
   const composition = await selectComposition({
@@ -49,11 +53,6 @@ export async function generateVideo(data: GenerateVideoData): Promise<string> {
       devMode: data.devMode,
       backgroundBlurPx: data.backgroundBlurPx,
       backgroundVideo: data.backgroundVideo,
-    },
-    // Add chromium options to fix AudioContext issues in headless environments
-    chromiumOptions: {
-      disableWebSecurity: true,
-      gl: "swiftshader", // Use software rendering to avoid GPU/audio device dependencies
     },
   });
 
@@ -72,11 +71,6 @@ export async function generateVideo(data: GenerateVideoData): Promise<string> {
       devMode: data.devMode,
       backgroundBlurPx: data.backgroundBlurPx,
       backgroundVideo: data.backgroundVideo,
-    },
-    // Add chromium options to fix AudioContext issues in headless environments
-    chromiumOptions: {
-      disableWebSecurity: true,
-      gl: "swiftshader", // Use software rendering to avoid GPU/audio device dependencies
     },
   });
 
