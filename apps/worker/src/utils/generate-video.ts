@@ -83,6 +83,7 @@ export async function generateVideo(data: GenerateVideoData): Promise<string> {
         backgroundBlurPx: data.backgroundBlurPx,
         backgroundVideo: data.backgroundVideo,
       },
+      timeoutInMilliseconds: 1000 * 60 * 5,
     });
     console.log("=== renderMedia completed successfully");
 

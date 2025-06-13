@@ -57,7 +57,9 @@ export const RemotionRoot: React.FC = () => {
                   audio.path,
                 );
                 try {
-                  const audioData = await getAudioData(staticFile(audio.path));
+                  const audioData = await getAudioData(
+                    "https://jk4bkzsv9s.ufs.sh/f/LP4p1g5t1nTxv1LndwEdxMSpW7GmVO0n3aNFoQckEbJCjePy",
+                  );
                   console.log(
                     `=== Successfully got audio data for ${audio.path}: duration=${audioData.durationInSeconds}s`,
                   );
