@@ -47,6 +47,7 @@ export const dashboardRouter = {
                 width: character.width,
                 position: character.position,
                 voice: character.voiceId,
+                role: character.role,
               },
             ]),
           ),

@@ -23,6 +23,7 @@ export type CharacterAssetLookup = Record<
     width: number;
     position: "left" | "right";
     voice: string;
+    role: "teacher" | "student";
   }
 >;
 
