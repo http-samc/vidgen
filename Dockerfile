@@ -53,14 +53,10 @@ COPY --from=builder /app/out/full/ .
 RUN pnpm build
 
 # Install remotion and tsx
-RUN pnpm add -g tsx
-RUN pnpm add -g remotion
+RUN pnpm add -g tsx remotion
 
-# Preinstall remotion browser
+# Preinstall the remotion browser
 RUN pnpm exec remotion browser ensure
 
-# Create output directory for videos
-RUN mkdir -p /app/out
-
 # Start the application
-CMD ["sh", "-c", "cd apps/worker && pnpm start"]
+CMD ["pnpm", "--filter", "@acme/worker", "start"]
