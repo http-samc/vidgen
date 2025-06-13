@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable turbo/no-undeclared-env-vars */
 import { Queue } from "bullmq";
 import IoRedis from "ioredis";
@@ -39,7 +38,7 @@ export const connection = new IoRedis(`${process.env.REDIS_URL}`, {
 });
 
 export const queue = new Queue<QueueData, QueueResult>(
-  process.env.QUEUE_NAME!,
+  process.env.QUEUE_NAME ?? "vidgen",
   {
     connection,
   },
