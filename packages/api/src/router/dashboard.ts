@@ -3,7 +3,7 @@ import type { TRPCRouterRecord } from "@trpc/server";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod/v4";
 
-import { eq } from "@acme/db";
+import { desc, eq } from "@acme/db";
 import { db } from "@acme/db/client";
 import { queue } from "@acme/db/queue";
 import { preset, video } from "@acme/db/schema";
@@ -133,6 +133,7 @@ export const dashboardRouter = {
   getVideos: protectedProcedure.query(async ({ ctx }) => {
     const videos = await db.query.video.findMany({
       where: eq(video.userId, ctx.session.user.id),
+      orderBy: [desc(video.createdAt)],
     });
 
     return videos;
