@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { FaGear, FaKey, FaVideo, FaWandMagicSparkles } from "react-icons/fa6";
 
 import { cn } from "@acme/ui";
@@ -19,11 +20,11 @@ const LINKS = [
     icon: <FaVideo />,
     href: "/dashboard/videos",
   },
-  {
-    label: "API",
-    icon: <FaKey size={14} />,
-    href: "/dashboard/api",
-  },
+  // {
+  //   label: "API",
+  //   icon: <FaKey size={14} />,
+  //   href: "/dashboard/api",
+  // },
   {
     label: "Settings",
     icon: <FaGear size={14} />,
