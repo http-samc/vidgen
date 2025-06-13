@@ -1,7 +1,6 @@
 /* eslint-disable turbo/no-undeclared-env-vars */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { existsSync } from "fs";
-import { readdir, rm, stat } from "fs/promises";
+import { rm } from "fs/promises";
 import { join } from "path";
 import { Worker } from "bullmq";
 
@@ -25,8 +24,6 @@ export async function createVideo(
   data: CreateVideoData,
   updateProgress: (progress: JobProgress) => Promise<void>,
 ) {
-  console.log("=== Starting video creation for ID:", data.id);
-
   // Generate the script
   await updateProgress({ state: "Generating script...", progress: 10 });
   const { lines: script, title, description } = await generateScript(data);
@@ -43,50 +40,6 @@ export async function createVideo(
       ]),
     ),
   );
-
-  console.log("=== Generated audio paths:", audioPaths);
-
-  // Log what's in the public directory
-  const publicDir = join(process.cwd(), "public");
-  const jobPublicDir = join(publicDir, data.id);
-
-  console.log("=== Checking public directory structure:");
-  console.log("Public dir exists:", existsSync(publicDir));
-  console.log("Job public dir exists:", existsSync(jobPublicDir));
-
-  if (existsSync(publicDir)) {
-    try {
-      const publicContents = await readdir(publicDir);
-      console.log("Public directory contents:", publicContents);
-    } catch (error) {
-      console.error("Error reading public directory:", error);
-    }
-  }
-
-  if (existsSync(jobPublicDir)) {
-    try {
-      const jobPublicContents = await readdir(jobPublicDir);
-      console.log(
-        `Job public directory (${data.id}) contents:`,
-        jobPublicContents,
-      );
-
-      // Check file sizes and permissions
-      for (const file of jobPublicContents) {
-        try {
-          const filePath = join(jobPublicDir, file);
-          const stats = await stat(filePath);
-          console.log(
-            `File ${file}: size=${stats.size} bytes, readable=${stats.isFile()}`,
-          );
-        } catch (error) {
-          console.error(`Error checking file ${file}:`, error);
-        }
-      }
-    } catch (error) {
-      console.error("Error reading job public directory:", error);
-    }
-  }
 
   // Generate master transcript
   await updateProgress({ state: "Generating transcript...", progress: 40 });
