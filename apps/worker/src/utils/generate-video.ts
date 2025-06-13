@@ -50,11 +50,6 @@ export async function generateVideo(data: GenerateVideoData): Promise<string> {
       backgroundBlurPx: data.backgroundBlurPx,
       backgroundVideo: data.backgroundVideo,
     },
-    // Add chromium options to fix AudioContext issues in headless environments
-    chromiumOptions: {
-      disableWebSecurity: true,
-      gl: "swiftshader", // Use software rendering to avoid GPU/audio device dependencies
-    },
   });
 
   // Render the video
@@ -72,11 +67,6 @@ export async function generateVideo(data: GenerateVideoData): Promise<string> {
       devMode: data.devMode,
       backgroundBlurPx: data.backgroundBlurPx,
       backgroundVideo: data.backgroundVideo,
-    },
-    // Add chromium options to fix AudioContext issues in headless environments
-    chromiumOptions: {
-      disableWebSecurity: true,
-      gl: "swiftshader", // Use software rendering to avoid GPU/audio device dependencies
     },
   });
 
