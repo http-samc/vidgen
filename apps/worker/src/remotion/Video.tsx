@@ -268,11 +268,7 @@ export const Video: React.FC<VideoProps> = ({
               durationInFrames={durationInFrames}
               premountFor={30}
             >
-              <Audio
-                src={
-                  "https://jk4bkzsv9s.ufs.sh/f/LP4p1g5t1nTxv1LndwEdxMSpW7GmVO0n3aNFoQckEbJCjePy"
-                }
-              />
+              <Audio src={staticFile(audio.path)} />
               {/* @ts-expect-error - characterAsset is not always defined */}
               {<CharacterImage {...characterAsset} />}
             </Sequence>
