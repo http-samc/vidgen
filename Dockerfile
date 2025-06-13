@@ -27,10 +27,10 @@ RUN apt-get update && apt-get install -y \
   libxfixes3 \
   libxcomposite1 \
   libxdamage1 \
-  libatk-bridge2.0-0 \
   libpango-1.0-0 \
   libcairo2 \
-  libcups2
+  libcups2 \
+  libatk-bridge2.0-0
 
 WORKDIR /app
 
