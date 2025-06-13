@@ -42,53 +42,37 @@ export async function generateVideo(data: GenerateVideoData): Promise<string> {
   console.log("Relative audio paths:", relativeAudioPaths);
 
   // Get the composition configuration
-  console.log("=== Starting selectComposition...");
-  try {
-    const composition = await selectComposition({
-      serveUrl: bundled,
-      id: "Video",
-      inputProps: {
-        audioPaths: relativeAudioPaths,
-        delay: data.delay,
-        transcript: data.transcript,
-        assetLookup: data.assetLookup,
-        devMode: data.devMode,
-        backgroundBlurPx: data.backgroundBlurPx,
-        backgroundVideo: data.backgroundVideo,
-      },
-    });
-    console.log("=== selectComposition completed successfully");
-    console.log("Composition details:", {
-      id: composition.id,
-      width: composition.width,
-      height: composition.height,
-      fps: composition.fps,
-      durationInFrames: composition.durationInFrames,
-    });
+  const composition = await selectComposition({
+    serveUrl: bundled,
+    id: "Video",
+    inputProps: {
+      audioPaths: relativeAudioPaths,
+      delay: data.delay,
+      transcript: data.transcript,
+      assetLookup: data.assetLookup,
+      devMode: data.devMode,
+      backgroundBlurPx: data.backgroundBlurPx,
+      backgroundVideo: data.backgroundVideo,
+    },
+  });
 
-    // Render the video
-    console.log("=== Starting renderMedia...");
-    const outputPath = path.join("out", `${data.id}.mp4`);
-    await renderMedia({
-      codec: "h264",
-      serveUrl: bundled,
-      outputLocation: outputPath,
-      composition,
-      inputProps: {
-        audioPaths: relativeAudioPaths,
-        delay: data.delay,
-        transcript: data.transcript,
-        assetLookup: data.assetLookup,
-        devMode: data.devMode,
-        backgroundBlurPx: data.backgroundBlurPx,
-        backgroundVideo: data.backgroundVideo,
-      },
-    });
-    console.log("=== renderMedia completed successfully");
+  // Render the video
+  const outputPath = path.join("out", `${data.id}.mp4`);
+  await renderMedia({
+    codec: "h264",
+    serveUrl: bundled,
+    outputLocation: outputPath,
+    composition,
+    inputProps: {
+      audioPaths: relativeAudioPaths,
+      delay: data.delay,
+      transcript: data.transcript,
+      assetLookup: data.assetLookup,
+      devMode: data.devMode,
+      backgroundBlurPx: data.backgroundBlurPx,
+      backgroundVideo: data.backgroundVideo,
+    },
+  });
 
-    return outputPath;
-  } catch (error) {
-    console.error("=== Error during video generation:", error);
-    throw error;
-  }
+  return outputPath;
 }
