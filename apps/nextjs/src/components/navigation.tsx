@@ -44,7 +44,7 @@ const Navigation = () => {
   };
 
   return (
-    <div className="flex w-full items-center space-x-6 overflow-x-scroll">
+    <div className="flex w-full items-center space-x-6 overflow-x-scroll lg:overflow-x-hidden">
       {LINKS.map((link) => (
         <Link
           href={link.href}

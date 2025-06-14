@@ -29,12 +29,14 @@ const PromptInput = ({ presets }: PromptInputProps) => {
 
   const [prompt, setPrompt] = useState("");
   const [preset, setPreset] = useState<string>(presets[0]!.value);
-  const { mutateAsync: createVideo, isPending: isCreating } = useMutation(
+  const { mutateAsync: createVideo } = useMutation(
     trpc.dashboard.createVideo.mutationOptions(),
   );
+  const [creating, setCreating] = useState(false);
 
   const handleSubmit = () => {
     if (prompt && preset) {
+      setCreating(true);
       void createVideo({ prompt, preset: preset }).then((result) => {
         if (result.jobId) {
           router.push(`/dashboard/videos/${result.jobId}`);
@@ -45,7 +47,7 @@ const PromptInput = ({ presets }: PromptInputProps) => {
 
   return (
     <div className="space-y-4 rounded-lg border bg-card p-4">
-      {!isCreating ? (
+      {!creating ? (
         <Textarea
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
@@ -80,7 +82,7 @@ const PromptInput = ({ presets }: PromptInputProps) => {
           variant="ghost"
           className={cn(
             "h-fit rounded-full border border-transparent !p-0 text-xl transition enabled:border-white hover:enabled:border-primary",
-            isCreating && "cursor-wait",
+            creating && "cursor-wait",
           )}
           disabled={!prompt || !preset}
           onClick={handleSubmit}
